@@ -18,6 +18,7 @@
     "mongoose-auto-increment": "^5.0.1",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.9.1",
+    "mysql2": "^2.1.0",
     "parse-error": "^0.2.0",
     "rand-token": "^0.4.0"
   }
