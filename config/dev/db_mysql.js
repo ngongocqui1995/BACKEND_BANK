@@ -5,11 +5,16 @@ let config = {
     user: "thongbao",
     password: "8239198tamquysang",
     database: "thongbao_test",
-    port: 3306
+    port: 3306,
+    multipleStatements: true,
+    connectionLimit: 1000,
+    waitForConnections: true,
+    queueLimit: 0
 }
 
 const pool = mysql.createPool(config);
 const promisePool = pool.promise();
+const to = require('await-to-js')
 
 function checkConnectDB() {
     promisePool.query("SELECT 1")
@@ -24,12 +29,15 @@ function checkConnectDB() {
 }
 
 async function queryDB(sql, values){
-    let [err,data] = await to(promisePool.query(sql, values))
-
     let result = [], fields = []
-    if (data) [result, fields] = data
 
-    return [err, [result, fields]]
+    try {
+        [result, fields] = await promisePool.query(sql, values)
+    } catch (err) {
+        return [err, [result, fields]]
+    }
+
+    return [null, [result, fields]]
 }
 
 module.exports = {
