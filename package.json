@@ -14,11 +14,15 @@
     "express": "^4.17.1",
     "http-errors": "^1.7.3",
     "jsonwebtoken": "^8.5.1",
+    "md5": "^2.2.1",
     "mongoose": "^5.7.13",
     "mongoose-auto-increment": "^5.0.1",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.9.1",
+    "mysql-promise": "^5.0.0",
+    "mysql2": "^2.1.0",
     "parse-error": "^0.2.0",
+    "ramda": "^0.27.0",
     "rand-token": "^0.4.0"
   }
 }
