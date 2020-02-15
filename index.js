@@ -21,6 +21,8 @@ const cors = require('cors')
 // import routes path
 const routes = require(global.APP_ROUTE_PATH)
 
+const { checkConnectDB } = require('./config/dev/db_mysql')
+
 app.use(cors())
 app.use(express.json());
 app.use(morgan('dev'));
@@ -55,18 +57,21 @@ server.on('error', onError)
 secureServer.on('listening', onListening)
 secureServer.on('error', onError)
 
-// Connect to DB
-mongoose.Promise = global.Promise
-mongoose.connect(dbConfig.url, dbConfig.options)
-  .then(() => {
-    console.log('db connected: ', dbConfig)
-    server.listen(port)
-    secureServer.listen(sslPort)
-  })
-  .catch(error => {
-    console.log('connect db error: ', error)
-  })
-mongoose.set('debug', true)
+// // Connect to DB
+// mongoose.Promise = global.Promise
+// mongoose.connect(dbConfig.url, dbConfig.options)
+//   .then(() => {
+//     console.log('db connected: ', dbConfig)
+//     server.listen(port)
+//     secureServer.listen(sslPort)
+//   })
+//   .catch(error => {
+//     console.log('connect db error: ', error)
+//   })
+// mongoose.set('debug', true)
+
+server.listen(process.env.PORT || port)
+checkConnectDB()
 
 module.exports = app
 
