@@ -29,15 +29,12 @@ function checkConnectDB() {
 }
 
 async function queryDB(sql, values){
-    let result = [], fields = []
-
     try {
         [result, fields] = await promisePool.query(sql, values)
+        return [null, [result, fields]]
     } catch (err) {
-        return [err, [result, fields]]
+        return [err, [[], []]]
     }
-
-    return [null, [result, fields]]
 }
 
 module.exports = {
