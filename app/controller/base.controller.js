@@ -19,7 +19,7 @@ class BaseController extends BaseAutoBindedClass {
   }
 
   ReS(res, data, code) {
-    console.log('BACKEND RESPONSE: ', JSON.stringify(data))
+    // console.log('BACKEND RESPONSE: ', JSON.stringify(data))
     return this.restManager.responseWithSuccess(res, data, code)
   }
 

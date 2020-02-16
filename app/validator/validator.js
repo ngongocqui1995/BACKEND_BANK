@@ -34,8 +34,19 @@ function getStateMessage(data){
     return { state, message }
 }
 
+function getRowsPagination(data){
+    let count = 0
+
+    if(data.length > 0 && data[0].message){
+        count = Number(data[0].message)
+    }
+
+    return { count }
+}
+
 module.exports = {
     isEmpty,
     isEmail,
-    getStateMessage
+    getStateMessage,
+    getRowsPagination
 }

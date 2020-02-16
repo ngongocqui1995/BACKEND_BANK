@@ -8,7 +8,7 @@ class AuthBis extends  BaseBis {
   }
 
   async authUser(userInfo) {
-    let username = userInfo.username
+    let username = userInfo.Username
 
     // check database
     const payload = {
