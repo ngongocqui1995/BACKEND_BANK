@@ -26,6 +26,17 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_DangNhap` (IN `Username_IN` VARCHAR(64) CHARSET utf8mb4, IN `Pass_IN` VARCHAR(128) CHARSET utf8mb4, OUT `Ketqua_OUT` VARCHAR(256) CHARSET utf8mb4)  NO SQL
+BEGIN    
+    IF exists(select* from TaiKhoan where Username = Username_IN and Pass = Pass_IN) THEN
+    	SET Ketqua_OUT = '0: Đăng Nhập Thành Công!';
+        
+    ELSEIF exists(select* from TaiKhoan where Username = Username_IN and Pass != Pass_IN) THEN
+    	SET Ketqua_OUT = '1: Bạn Nhập Sai Password!';
+    ELSEIF exists(select* from TaiKhoan where Username != Username_IN)THEN
+    	SET Ketqua_OUT = '2: Tài Khoản này không tồn tại!';
+     END IF;
+END$$
 
 
 -- --------------------------------------------------------
