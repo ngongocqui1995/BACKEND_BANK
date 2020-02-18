@@ -8,9 +8,11 @@ class AuthBis extends  BaseBis {
   }
 
   async authUser(userInfo) {
+    let username = userInfo.username
+
     // check database
     const payload = {
-      userId: "123test"
+      username
     }
 
     const token = jwt.sign(payload, 'SANG_TOKEN', {
