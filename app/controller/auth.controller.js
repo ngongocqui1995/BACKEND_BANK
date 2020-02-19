@@ -4,11 +4,23 @@ const AuthBis = require('../bussiness-logic/auth.bis')
 const { isEmail, isEmpty, getStateMessage, getRowsPagination } = require('../validator/validator')
 const { queryDB } = require('../../config/dev/db_mysql')
 const md5 = require('md5')
+const jwt = require('jsonwebtoken')
+const to = require('await-to-js').default
 
 class AuthController extends BaseController {
   constructor() {
     super(mongoose)
     this.authBis = new AuthBis(mongoose)
+  }
+
+  verifyRefreshToken = (refreshToken) => {
+    return new Promise((resolve, reject) => {
+      jwt.verify(refreshToken, 'SANG_TOKEN', (err, decode) => {
+        if (err) reject(err)
+  
+        resolve(decode)
+      })
+    })
   }
 
   async getToken(req, res) {
@@ -22,12 +34,19 @@ class AuthController extends BaseController {
       })
     }
 
+    let [err, decode] = await to(this.verifyRefreshToken(refreshToken))
+
+    if(err) return res.send({
+      success: false,
+      message: err
+    })
+
     // kiểm tra refreshtoken có tồn tại ko
     let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [user.username, '', refreshToken])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', ''])
     
     let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
+    if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
 
     if(err_1) return res.send({
       success: false,

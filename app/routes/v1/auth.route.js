@@ -5,5 +5,7 @@ const auth = new AuthController()
 //CRUD
 router.post('/login', auth.login)
 
+router.post('/gettoken', auth.getToken)
+
 // other routes
 module.exports = router
