@@ -1,9 +1,11 @@
 const BaseController = require('./base.controller')
 const mongoose = require('mongoose')
 const AuthBis = require('../bussiness-logic/auth.bis')
-const { isEmail, isEmpty, getStateMessage } = require('../validator/validator')
+const { isEmail, isEmpty, getStateMessage, getRowsPagination } = require('../validator/validator')
 const { queryDB } = require('../../config/dev/db_mysql')
 const md5 = require('md5')
+const jwt = require('jsonwebtoken')
+const to = require('await-to-js').default
 
 class AuthController extends BaseController {
   constructor() {
@@ -11,26 +13,144 @@ class AuthController extends BaseController {
     this.authBis = new AuthBis(mongoose)
   }
 
+  verifyRefreshToken = (refreshToken) => {
+    return new Promise((resolve, reject) => {
+      jwt.verify(refreshToken, 'SANG_TOKEN', (err, decode) => {
+        if (err) reject(err)
+  
+        resolve(decode)
+      })
+    })
+  }
+
+  async getToken(req, res) {
+    let username = req.body.username
+    let refreshToken = req.body.refreshToken
+
+    if (isEmpty(username) || isEmpty(refreshToken)) {
+      return res.send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    let [err, decode] = await to(this.verifyRefreshToken(refreshToken))
+
+    if(err) return res.send({
+      success: false,
+      message: err
+    })
+
+    // kiểm tra refreshtoken có tồn tại ko
+    let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', ''])
+    
+    let numberRow = { count: 0 }
+    if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
+
+    if(err_1) return res.send({
+      success: false,
+      message: err_1
+    })
+    if(numberRow.count === 0) return res.send({
+      success: false,
+      message: "Lấy thông tin thất bại!!!"
+    })
+
+    console.log("-Refreshtoken tồn tại!!!")
+
+    // lấy accesstoken
+    const [err_2, auth] = await this.to(this.authBis.authUser({Username: username}))
+    if(err_2) return res.send({
+      success: false,
+      message: err_2
+    })
+
+    console.log("-Lấy accesstoken thành công!!!")
+
+    res.send({
+        message: "Lấy token thành công!!!",
+        ...auth,
+        success: true
+    })
+  }
+
   async login(req, res) {
     let username = req.body.username
     let password = req.body.password
 
     if (!isEmail(username) || isEmpty(password)) {
-      this.ReE(res, 422)
+      return res.send({
+        success: false,
+        message: "-Đăng nhập thất bại !!!"
+      })
     }
 
+    // kiểm tra đăng nhập thành công hay thất bại
     let hashPassword = md5(password)
-    let sql = "CALL `proc_DangNhap`(?,?,@kq); select @kq as `message`;";
+    let sql = "CALL proc_DangNhap(?,?,@kq); select @kq as `message`;";
     let [err, [result, fields]] = await queryDB(sql, [username, hashPassword])
+
     let { state, message } = getStateMessage(result[result.length-1])
+        
+    if(err) return res.send({
+      success: false,
+      message: err
+    })
+    if(!state) return res.send({
+      success: false,
+      message: message
+    })
+
+    console.log("-Kiểm tra đăng nhập thành công!!!")
+
+    // lấy thông tin user
+    let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
     
-    if(err) return this.ReE(res, 422)
-    if(!state) return this.ReE(res, 422)
+    let numberRow = { count: 0 }
+    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
 
-    const [err_1, auth] = await this.to(this.authBis.authUser({username}))
-    if(err_1) return this.ReE(res, 422)
+    if(err_1) return res.send({
+      success: false,
+      message: err_1
+    })
+    if(numberRow.count === 0) return res.send({
+      success: false,
+      message: "Đăng nhập thất bại !!!"
+    })
 
-    return this.ReS(res, auth)
+    console.log("-Lấy thông tin user thành công!!!")
+
+    let user = result_1[0] ? result_1[0][0] : {}
+
+    // lấy accesstoken và refreshToken
+    const [err_2, auth] = await this.to(this.authBis.authUser(user))
+    if(err_2) return res.send({
+      success: false,
+      message: err_2
+    })
+
+    console.log("-Lấy accesstoken và refreshToken thành công!!!")
+
+    // lưu refreshToken vào db
+    let sql_3 = "CALL proc_ThemAuth_RefreshToken(?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_3, [result_3, fields_3]] = await queryDB(sql_3, [username, user.ID_TaiKhoan, auth.refreshToken, 'thang', '1'])
+
+    if(err_3) return res.send({
+      success: false,
+      message: err_3
+    })
+
+    console.log("-Lưu refreshToken vào database thành công!!!")
+    
+    return res.send({
+      ...auth,
+      username: user.Username,
+      Loai: user.Loai,
+      success: true,
+      message: message
+    })
   }
 }
 

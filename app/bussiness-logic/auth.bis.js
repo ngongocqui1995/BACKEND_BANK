@@ -8,18 +8,16 @@ class AuthBis extends  BaseBis {
   }
 
   async authUser(userInfo) {
-    let username = userInfo.username
+    let username = userInfo.Username
+    let ClientID = userInfo.ID_TaiKhoan
 
-    // check database
-    const payload = {
-      username
-    }
-
-    const token = jwt.sign(payload, 'SANG_TOKEN', {
+    const token = jwt.sign({username}, 'SANG_TOKEN', {
       expiresIn: 10 * 60 * 1000 // 10 mins
     })
 
-    const rfToken = rndToken.generate(80)
+    const rfToken = jwt.sign({ClientID}, 'SANG_TOKEN', {
+      expiresIn: 30 * 86400 * 1000 // 1 tháng
+    })
 
     return {
       accessToken: token,

@@ -14,30 +14,22 @@ let config = {
 
 const pool = mysql.createPool(config);
 const promisePool = pool.promise();
-const to = require('await-to-js')
+const to = require('await-to-js').default
 
-function checkConnectDB() {
-    promisePool.query("SELECT 1")
-    .then( ([rows,fields]) => {
-        console.log("Successfully connected to the database");
-    })
-    .catch((err) => {
+async function checkConnectDB() {
+    let [err, result] = await to(promisePool.query("SELECT 1"))
+    if (err) {
         console.log(err)
         console.log('Could not connect to the database. Exiting now...')
         process.exit()
-    })
+    }
+
+    console.log("Successfully connected to the database");
 }
 
 async function queryDB(sql, values){
-    let result = [], fields = []
-
-    try {
-        [result, fields] = await promisePool.query(sql, values)
-    } catch (err) {
-        return [err, [result, fields]]
-    }
-
-    return [null, [result, fields]]
+    let [err, [result, fields]] = await to(promisePool.query(sql, values))
+    return [err, [result, fields]]
 }
 
 module.exports = {

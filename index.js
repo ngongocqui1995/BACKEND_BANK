@@ -20,12 +20,29 @@ const morgan = require('morgan')
 const cors = require('cors')
 // import routes path
 const routes = require(global.APP_ROUTE_PATH)
+const jwt = require('jsonwebtoken')
 
 const { checkConnectDB } = require('./config/dev/db_mysql')
 
 app.use(cors())
 app.use(express.json());
 app.use(morgan('dev'));
+
+app.use((request, _, next) => {
+  if(request.headers && request.headers.authorization 
+      && request.headers.authorization.split(' ')[0] === "JWT") {
+      let token = request.headers.authorization.split(' ')[1]
+      jwt.verify(token, 'SANG_TOKEN', (err, decode) => {
+          if (err) request.user = undefined
+
+          request.user = decode
+          next()
+      })
+  } else {
+      request.user = undefined
+      next()
+  }
+})
 
 // default route
 app.get('/', (req, res) => {
