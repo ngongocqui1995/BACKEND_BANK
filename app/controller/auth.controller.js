@@ -13,19 +13,9 @@ class AuthController extends BaseController {
     this.authBis = new AuthBis(mongoose)
   }
 
-  verifyRefreshToken = (refreshToken) => {
-    return new Promise((resolve, reject) => {
-      jwt.verify(refreshToken, 'SANG_TOKEN', (err, decode) => {
-        if (err) reject(err)
-  
-        resolve(decode)
-      })
-    })
-  }
-
   async getToken(req, res) {
     let username = req.body.username
-    let refreshToken = req.body.refreshToken
+    let refreshToken = req.refreshtoken
 
     if (isEmpty(username) || isEmpty(refreshToken)) {
       return res.send({
@@ -34,16 +24,9 @@ class AuthController extends BaseController {
       })
     }
 
-    let [err, decode] = await to(this.verifyRefreshToken(refreshToken))
-
-    if(err) return res.send({
-      success: false,
-      message: err
-    })
-
     // kiểm tra refreshtoken có tồn tại ko
     let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', refreshToken])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, refreshToken.ClientID, ''])
     
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
