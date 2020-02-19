@@ -14,10 +14,10 @@ class AuthController extends BaseController {
   }
 
   async getToken(req, res) {
-    let username = req.body.username
+    let accesstoken = req.accesstoken
     let refreshToken = req.refreshtoken
 
-    if (isEmpty(username) || isEmpty(refreshToken)) {
+    if (isEmpty(accesstoken) || isEmpty(refreshToken)) {
       return res.send({
         success: false,
         message: "-Lấy token thất bại !!!"
@@ -26,7 +26,7 @@ class AuthController extends BaseController {
 
     // kiểm tra refreshtoken có tồn tại ko
     let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, refreshToken.ClientID, ''])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, refreshToken.ClientID, ''])
     
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
@@ -43,7 +43,7 @@ class AuthController extends BaseController {
     console.log("-Refreshtoken tồn tại!!!")
 
     // lấy accesstoken
-    const [err_2, auth] = await this.to(this.authBis.authUser({Username: username}))
+    const [err_2, auth] = await this.to(this.authBis.authUser({Username: accesstoken.username, ID_TaiKhoan: refreshToken.ClientID}))
     if(err_2) return res.send({
       success: false,
       message: err_2
