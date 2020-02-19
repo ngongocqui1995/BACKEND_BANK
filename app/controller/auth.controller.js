@@ -43,7 +43,7 @@ class AuthController extends BaseController {
 
     // kiểm tra refreshtoken có tồn tại ko
     let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', ''])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', refreshToken])
     
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
@@ -70,7 +70,7 @@ class AuthController extends BaseController {
 
     res.send({
         message: "Lấy token thành công!!!",
-        ...auth,
+        accessToken: auth.accessToken,
         success: true
     })
   }
@@ -133,16 +133,37 @@ class AuthController extends BaseController {
 
     console.log("-Lấy accesstoken và refreshToken thành công!!!")
 
-    // lưu refreshToken vào db
-    let sql_3 = "CALL proc_ThemAuth_RefreshToken(?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_3, [result_3, fields_3]] = await queryDB(sql_3, [username, user.ID_TaiKhoan, auth.refreshToken, 'thang', '1'])
+    // kiểm tra refreshtoken có tồn tại ko
+    let sql_4 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
+    let [err_4, [result_4, fields_4]] = await queryDB(sql_4, [username, '', ''])
+    
+    let numberRow_4 = { count: 0, row: [] }
+    if (result_4.length > 0) numberRow_4 = result_4[0] ? { 
+      count: result_4[0].length,
+      row: result_4[0]
+    } : { 
+      count: 0, 
+      row: [] 
+    }
 
-    if(err_3) return res.send({
+    if(err_4) return res.send({
       success: false,
-      message: err_3
+      message: err_4
     })
+    if(numberRow_4.count === 0) {
+      // lưu refreshToken vào db
+      let sql_3 = "CALL proc_ThemAuth_RefreshToken(?,?,?,?,?,@kq); select @kq as `message`;";
+      let [err_3, [result_3, fields_3]] = await queryDB(sql_3, [username, user.ID_TaiKhoan, auth.refreshToken, 'thang', '1'])
 
-    console.log("-Lưu refreshToken vào database thành công!!!")
+      if(err_3) return res.send({
+        success: false,
+        message: err_3
+      })
+
+      console.log("-Thêm refreshToken vào database thành công!!!")
+    } else {
+      auth.refreshToken = numberRow_4.row[0] ? numberRow_4.row[0].Refresh_token : ""
+    }
     
     return res.send({
       ...auth,
