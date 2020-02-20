@@ -11,12 +11,12 @@ class AuthBis extends  BaseBis {
     let username = userInfo.Username
     let ClientID = userInfo.ID_TaiKhoan
 
-    const token = jwt.sign({username}, 'SANG_TOKEN', {
-      expiresIn: 10 * 60 * 1000 // 10 mins
+    const token = jwt.sign({username, ClientID}, 'SANG_TOKEN', {
+      expiresIn: 1 * 60 // 1 mins
     })
 
-    const rfToken = jwt.sign({ClientID}, 'SANG_TOKEN', {
-      expiresIn: 30 * 86400 * 1000 // 1 tháng
+    const rfToken = jwt.sign({ClientID, username}, 'SANG_TOKEN', {
+      expiresIn: 30 * 86400 // 1 tháng
     })
 
     return {

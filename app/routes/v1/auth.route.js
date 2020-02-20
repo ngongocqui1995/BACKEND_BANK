@@ -6,7 +6,7 @@ const {verifyAccessToken} = require('../../middleware/auth.mware')
 //CRUD
 router.post('/login', auth.login)
 
-router.post('/gettoken', verifyAccessToken, auth.getToken)
+router.get('/gettoken', verifyAccessToken, auth.getToken)
 
 // other routes
 module.exports = router
