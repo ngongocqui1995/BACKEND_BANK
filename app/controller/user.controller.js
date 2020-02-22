@@ -14,7 +14,7 @@ class UserController extends BaseController {
     let { username, password, name, gmail, sdt } = req.body
 
     if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
-      return res.send({
+      return res.status(422).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })
@@ -27,11 +27,11 @@ class UserController extends BaseController {
     
     let { state, message } = getStateMessage(result_1[result_1.length-1])
         
-    if(err_1) return res.send({
+    if(err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(!state) return res.send({
+    if(!state) return res.status(422).send({
       success: false,
       message: message
     })
@@ -48,7 +48,7 @@ class UserController extends BaseController {
     let { accesstoken, refreshtoken } = req
 
     if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
-      return res.send({
+      return res.status(422).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })
@@ -61,11 +61,11 @@ class UserController extends BaseController {
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
 
-    if(err_1) return res.send({
+    if(err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(numberRow.count === 0) return res.send({
+    if(numberRow.count === 0) return res.status(422).send({
       success: false,
       message: "Lấy thông tin thất bại!!!"
     })
@@ -85,7 +85,7 @@ class UserController extends BaseController {
     let { accesstoken, refreshtoken } = req
 
     if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
-      return res.send({
+      return res.status(422).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })
@@ -98,11 +98,11 @@ class UserController extends BaseController {
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
 
-    if(err_1) return res.send({
+    if(err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(numberRow.count === 0) return res.send({
+    if(numberRow.count === 0) return res.status(422).send({
       success: false,
       message: "Lấy thông tin thất bại!!!"
     })
