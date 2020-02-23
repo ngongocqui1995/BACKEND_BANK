@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 app.use(function (err, req, res, next) {
   if (typeof err.status === 'undefined' || err.status === 500) {
     console.error(err.stack);
-    res.status(500).send('View error log on console.');
+    res.status(422).send('View error log on console.');
   } else {
     res.status(err.status).send(err);
   }

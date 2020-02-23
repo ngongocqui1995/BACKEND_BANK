@@ -29,7 +29,7 @@ class AuthController extends BaseController {
     let { refreshtoken } = req
 
     if (isEmpty(refreshtoken)) {
-      return res.send({
+      return res.status(422).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })
@@ -42,11 +42,11 @@ class AuthController extends BaseController {
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
 
-    if(err_1) return res.send({
+    if(err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(numberRow.count === 0) return res.send({
+    if(numberRow.count === 0) return res.status(422).send({
       success: false,
       message: "Lấy thông tin thất bại!!!"
     })
@@ -55,7 +55,7 @@ class AuthController extends BaseController {
 
     // lấy accesstoken
     const [err_2, auth] = await this.to(this.authBis.authUser({Username: refreshtoken.username, ID_TaiKhoan: refreshtoken.ClientID}))
-    if(err_2) return res.send({
+    if(err_2) return res.status(422).send({
       success: false,
       message: err_2
     })
@@ -74,7 +74,7 @@ class AuthController extends BaseController {
     let password = req.body.password
 
     if (!isEmail(username) || isEmpty(password)) {
-      return res.send({
+      return res.status(422).send({
         success: false,
         message: "-Đăng nhập thất bại !!!"
       })
@@ -87,11 +87,11 @@ class AuthController extends BaseController {
 
     let { state, message } = getStateMessage(result[result.length-1])
         
-    if(err) return res.send({
+    if(err) return res.status(422).send({
       success: false,
       message: err
     })
-    if(!state) return res.send({
+    if(!state) return res.status(422).send({
       success: false,
       message: message
     })
@@ -105,11 +105,11 @@ class AuthController extends BaseController {
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
 
-    if(err_1) return res.send({
+    if(err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(numberRow.count === 0) return res.send({
+    if(numberRow.count === 0) return res.status(422).send({
       success: false,
       message: "Đăng nhập thất bại !!!"
     })
@@ -120,7 +120,7 @@ class AuthController extends BaseController {
 
     // lấy accesstoken và refreshToken
     const [err_2, auth] = await this.to(this.authBis.authUser(user))
-    if(err_2) return res.send({
+    if(err_2) return res.status(422).send({
       success: false,
       message: err_2
     })
@@ -140,7 +140,7 @@ class AuthController extends BaseController {
       row: [] 
     }
 
-    if(err_4) return res.send({
+    if(err_4) return res.status(422).send({
       success: false,
       message: err_4
     })
@@ -152,7 +152,7 @@ class AuthController extends BaseController {
       let sql_3 = "CALL proc_ThemAuth_RefreshToken(?,?,?,?,?,@kq); select @kq as `message`;";
       let [err_3, [result_3, fields_3]] = await queryDB(sql_3, [username, user.ID_TaiKhoan, auth.refreshToken, 'thang', '1'])
 
-      if(err_3) return res.send({
+      if(err_3) return res.status(422).send({
         success: false,
         message: err_3
       })
