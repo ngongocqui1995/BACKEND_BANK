@@ -14,22 +14,40 @@ class UserController extends BaseController {
     let { username, password, name, gmail, sdt } = req.body
 
     if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
-      return res.status(422).send({
+      return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })
     }
 
-    // đăng kí tài khoản
-    let hashpass = md5(password)
-    let sql_1 = "CALL proc_DangKy(?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, hashpass, name, gmail, sdt])
+    // kiểm tra user có tồn tại ko
+    let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
     
-    let { state, message } = getStateMessage(result_1[result_1.length-1])
-        
+    let numberRow = { count: 0 }
+    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
+
     if(err_1) return res.status(422).send({
       success: false,
       message: err_1
+    })
+    if(numberRow.count === 1) return res.status(402).send({
+      success: false,
+      message: "Email đã tồn tại!!!"
+    })
+
+    console.log("-Kiểm tra user thành công!!!")
+
+    // đăng kí tài khoản
+    let hashpass = md5(password)
+    let sql_2 = "CALL proc_DangKy(?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_2, [result_2, fields_2]] = await queryDB(sql_2, [username, hashpass, name, gmail, sdt])
+    
+    let { state, message } = getStateMessage(result_2[result_2.length-1])
+        
+    if(err_2) return res.status(422).send({
+      success: false,
+      message: err_2
     })
     if(!state) return res.status(422).send({
       success: false,
@@ -46,6 +64,7 @@ class UserController extends BaseController {
 
   async info(req, res) {
     let { accesstoken, refreshtoken } = req
+    let { username } = req.body
 
     if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
       return res.status(422).send({
@@ -56,7 +75,7 @@ class UserController extends BaseController {
 
     // lấy thông tin user
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
     
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
@@ -85,7 +104,7 @@ class UserController extends BaseController {
     let { accesstoken, refreshtoken } = req
 
     if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
-      return res.status(422).send({
+      return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })

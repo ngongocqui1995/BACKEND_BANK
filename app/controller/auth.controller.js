@@ -29,7 +29,7 @@ class AuthController extends BaseController {
     let { refreshtoken } = req
 
     if (isEmpty(refreshtoken)) {
-      return res.status(422).send({
+      return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })
