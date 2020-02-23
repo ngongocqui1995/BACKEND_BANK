@@ -1,11 +1,47 @@
 const BaseController = require('./base.controller')
 const mongoose = require('mongoose')
 const { queryDB } = require('../../config/dev/db_mysql')
-const { getRowsPagination, isEmpty } = require('../validator/validator')
+const { getRowsPagination, isEmpty, getStateMessage } = require('../validator/validator')
+var md5 = require('md5');
 
 class UserController extends BaseController {
   constructor() {
     super(mongoose)
+  }
+
+  async create(req, res) {
+    let { accesstoken, refreshtoken } = req
+    let { username, password, name, gmail, sdt } = req.body
+
+    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
+      return res.send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    // đăng kí tài khoản
+    let hashpass = md5(password)
+    let sql_1 = "CALL proc_DangKy(?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, hashpass, name, gmail, sdt])
+    
+    let { state, message } = getStateMessage(result_1[result_1.length-1])
+        
+    if(err_1) return res.send({
+      success: false,
+      message: err_1
+    })
+    if(!state) return res.send({
+      success: false,
+      message: message
+    })
+
+    console.log("-Đăng ký user thành công!!!")
+
+    res.send({
+        success: true,
+        message: message
+    })
   }
 
   async info(req, res) {
