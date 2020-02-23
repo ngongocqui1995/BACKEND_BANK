@@ -10,5 +10,7 @@ router.get('/', verifyAccessToken, user.getAll)
 
 router.post('/', verifyAccessToken, user.create)
 
+router.post('/giaodich', verifyAccessToken, user.giaodich)
+
 // other routes
 module.exports = router
