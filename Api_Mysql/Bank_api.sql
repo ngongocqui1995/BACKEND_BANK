@@ -221,6 +221,13 @@ BEGIN
        END IF;
      END IF;
 END$$
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_KhoaTaiKhoan(KoDung)` (IN `Username_IN` VARCHAR(64) CHARSET utf8mb4, OUT `Ketqua_OUT` VARCHAR(256) CHARSET utf8mb4)  NO SQL
+BEGIN
+    	UPDATE TaiKhoan
+        SET TinhTrang = 'Khoa'
+		WHERE Username = Username_IN;
+        SET Ketqua_OUT = '0: Khóa thành công!';
+END$$
 
 -- --------------------------------------------------------
 
