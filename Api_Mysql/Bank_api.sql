@@ -37,7 +37,190 @@ BEGIN
     	SET Ketqua_OUT = '2: Tài Khoản này không tồn tại!';
      END IF;
 END$$
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_DoiPassTaiKhoan` (IN `Username_IN` VARCHAR(64) CHARSET utf8mb4, IN `Pass_IN` VARCHAR(560) CHARSET utf8mb4, OUT `Ketqua_OUT` VARCHAR(256) CHARSET utf8mb4)  NO SQL
+BEGIN
+    DECLARE ktra int;
+    SET ktra = 0;
+    IF Pass_IN='' THEN
+    	SET Ketqua_OUT = '1: Bạn chưa nhập pass';
+        SET ktra = 1;
+    END IF;
 
+   
+        IF (LENGTH(Pass_IN) >= 560 or LENGTH(Pass_IN) <= 5) and Pass_IN !='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 3: Pass có số lượng từ không hợp lệ!');
+        
+        SET ktra = 1;
+    END IF;    
+
+    IF Username_IN ='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 4: Bạn chưa nhập  Username');
+        SET ktra = 1;
+    END IF;
+
+
+    IF(ktra = 0) THEN
+    	UPDATE TaiKhoan
+        SET Pass = Pass_IN
+		WHERE Username = Username_IN;
+        SET Ketqua_OUT = '0: Sửa Password thành công!';
+    END IF;
+END$$
+
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_GiaoDichDoiNo` (IN `ID_TaiKhoan_TTTK_A_IN` INT(12), IN `TenNganHangLienKet_A_IN` VARCHAR(64) CHARSET utf8mb4, IN `ID_TaiKhoan_TTTK_B_IN` INT(12), IN `TenNganHangLienKet_B_IN` VARCHAR(64) CHARSET utf8mb4, IN `SoTien_IN` FLOAT(12), IN `LoaiGiaoDich_IN` VARCHAR(64) CHARSET utf8mb4, IN `GhiChu_IN` VARCHAR(564) CHARSET utf8mb4, IN `NguoiTraPhi_IN` VARCHAR(564) CHARSET utf8mb4, IN `ID_TraNo_IN` INT(12), OUT `Ketqua_OUT` VARCHAR(256) CHARSET utf8mb4)  NO SQL
+BEGIN
+    DECLARE ktra int;
+    DECLARE tktt int;
+    DECLARE idnganhanglienket_A int;
+    DECLARE idnganhanglienket_B int;
+    DECLARE tiencantra int;
+    DECLARE sodu_A FLOAT;
+    SET tiencantra = (SELECT SoTien FROM GiaoDich WHERE ID_GiaoDich = ID_TraNo_IN);
+    SET ktra = 0;
+    IF ID_TaiKhoan_TTTK_A_IN='' THEN
+    	SET Ketqua_OUT = '1: Bạn chưa nhập TK bên A';
+        SET ktra = 1;
+    END IF;
+
+	IF ID_TaiKhoan_TTTK_B_IN='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',2: Bạn chưa nhập TK bên B');
+        SET ktra = 1;
+    END IF;
+
+	IF 	TenNganHangLienKet_A_IN='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',3: Bạn chưa nhập Ngân Hàng bên A');
+        SET ktra = 1;
+    END IF;
+    
+	IF 	TenNganHangLienKet_B_IN='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',4: Bạn chưa nhập Ngân Hàng bên B');
+        SET ktra = 1;
+    END IF;
+    
+	IF 	SoTien_IN='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',5: Bạn chưa nhập Số Tiền');
+        SET ktra = 1;
+    END IF;
+    
+    IF 	LoaiGiaoDich_IN='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',6: Bạn chưa nhập Loại giao dịch');
+        SET ktra = 1;
+    END IF;
+    
+    IF 	NguoiTraPhi_IN='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',7: Bạn chưa nhập Bên Nào Trả Phí');
+        SET ktra = 1;
+    END IF;
+
+    
+    IF not exists(select* from NganHangLienKet where TenNganHang = TenNganHangLienKet_A_IN) THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',11: Ngan Hang Bên A chưa liên kết');
+        SET ktra = 1;
+    END IF;    
+    
+    IF not exists(select* from NganHangLienKet where TenNganHang = TenNganHangLienKet_B_IN) THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',12: Ngan Hang Bên B chưa liên kết');
+        SET ktra = 1;
+    END IF; 
+    
+    SET idnganhanglienket_A = (SELECT ID_NganHangLienKet FROM NganHangLienKet WHERE TenNganHang = TenNganHangLienKet_A_IN);
+    SET idnganhanglienket_B = (SELECT ID_NganHangLienKet FROM NganHangLienKet WHERE TenNganHang = TenNganHangLienKet_B_IN);
+    
+    IF idnganhanglienket_B = 1 AND exists(select* from TaiKhoan_TTTK where ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_B_IN AND Loai = 'TK') AND exists (SELECT* FROM TaiKhoan TK, TaiKhoan_TTTK TTTK WHERE TK.ID_TaiKhoan = TTTK.ID_TaiKhoanNguoiDung AND TTTK.ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_A_IN AND TK.Loai ='KH') THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',14: Tài khoảng B này là TK tiết kiệm, ko thể thanh toán, chỉ có thể nạp tiền bởi nhân viên ngân hàng');
+        SET ktra = 1;
+    END IF;
+
+    IF idnganhanglienket_A = 1 AND exists(select* from TaiKhoan_TTTK where ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_A_IN  AND TinhTrang != 'BinhThuong') THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',15: Tài khoảng A này đang bị khóa');
+        SET ktra = 1;
+    END IF;           
+
+    IF idnganhanglienket_A = 1 AND not exists(select* from TaiKhoan_TTTK where ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_A_IN) THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',13: Tài khoảng A này không tồn tại');
+        SET ktra = 1;
+    END IF;     
+
+    IF idnganhanglienket_A = 1 AND  exists(select* from TaiKhoan_TTTK where ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_A_IN AND Loai = 'TK') THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',14: Tài khoảng A này là TK tiết kiệm, ko thể thanh toán');
+        SET ktra = 1;
+    END IF;
+
+    IF idnganhanglienket_B = 1 AND exists(select* from TaiKhoan_TTTK where ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_B_IN  AND TinhTrang != 'BinhThuong') THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',15: Tài khoảng B này đang bị khóa');
+        SET ktra = 1;
+    END IF;           
+
+    IF idnganhanglienket_B = 1 AND not exists(select* from TaiKhoan_TTTK where ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_B_IN) THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',13: Tài khoảng B này không tồn tại');
+        SET ktra = 1;
+    END IF;     
+    
+    SET sodu_A = (SELECT SoDu FROM TaiKhoan_TTTK WHERE ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_A_IN);
+    
+	IF LoaiGiaoDich_IN = 'Gui' or LoaiGiaoDich_IN = 'TraNo' THEN 
+    	    IF idnganhanglienket_A = 1 AND sodu_A < SoTien_IN THEN	
+    			SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',14: Tài khoảng này không đủ tiền để giao dịch');
+        		SET ktra = 1;            	
+    		END IF;
+    END IF;
+    
+	IF LoaiGiaoDich_IN = 'TraNo' AND SoTien_IN != tiencantra THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',15: Số tiền thanh toán nợ này ko đủ đối với khoảng nợ');
+    END IF;
+    
+    IF LoaiGiaoDich_IN = 'TraNo' AND EXISTS(SELECT* FROM GiaoDich where ID_GiaoDich = ID_TraNo_IN AND TinhTrang = 'DaTra') THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',16: Bạn đã trả nợ cho người này rồi');
+    END IF;
+    	
+     IF LoaiGiaoDich_IN = 'TraNo' AND NOT EXISTS(SELECT* FROM GiaoDich where ID_GiaoDich = ID_TraNo_IN ) THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ',17: Không tồn tại lời đòi nợ để trả');
+    END IF;	
+   
+    
+    IF(ktra = 0) THEN
+    	IF LoaiGiaoDich_IN = 'Gui' THEN
+        	IF idnganhanglienket_A = 1 THEN
+        		UPDATE TaiKhoan_TTTK
+            	SET SoDu = SoDu - SoTien_IN
+            	WHERE ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_A_IN;
+        	END IF;        
+        	IF idnganhanglienket_B = 1 THEN
+            	UPDATE TaiKhoan_TTTK
+            	SET SoDu = SoDu + SoTien_IN
+            	WHERE ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_B_IN;
+        	END IF;
+        	INSERT INTO GiaoDich (ID_TaiKhoan_TTTK_A, ID_NganHangLienKet_A, ID_TaiKhoan_TTTK_B, ID_NganHangLienKet_B, SoTien, LoaiGiaoDich, GhiChu, NguoiTraPhi, ID_TraNo, ThoiGian, TinhTrang)
+            VALUES (ID_TaiKhoan_TTTK_A_IN, idnganhanglienket_A, ID_TaiKhoan_TTTK_B_IN, idnganhanglienket_B, SoTien_IN, 'Gui', GhiChu_IN, NguoiTraPhi_IN, 0, TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP()), 'DaGui');
+            SET Ketqua_OUT = '0: Đã giao dịch thành công!';
+        END IF;
+
+
+        IF LoaiGiaoDich_IN = 'TraNo' AND idnganhanglienket_A = 1 AND idnganhanglienket_B = 1 THEN
+        	UPDATE TaiKhoan_TTTK
+            SET SoDu = SoDu - SoTien_IN
+            WHERE ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_A_IN;  
+            
+            UPDATE TaiKhoan_TTTK
+            SET SoDu = SoDu + SoTien_IN
+            WHERE ID_TaiKhoanTTTK = ID_TaiKhoan_TTTK_B_IN;
+            
+            INSERT INTO GiaoDich (ID_TaiKhoan_TTTK_A, ID_NganHangLienKet_A, ID_TaiKhoan_TTTK_B, ID_NganHangLienKet_B, SoTien, LoaiGiaoDich, GhiChu, NguoiTraPhi, ID_TraNo, ThoiGian, TinhTrang)
+            VALUES (ID_TaiKhoan_TTTK_A_IN, idnganhanglienket_A, ID_TaiKhoan_TTTK_B_IN, idnganhanglienket_B, SoTien_IN, 'TraNo', GhiChu_IN, NguoiTraPhi_IN, ID_TraNo_IN, TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP()), 'DaTra');
+            
+            UPDATE GiaoDich
+            SET TinhTrang = 'DaNhan'
+            WHERE ID_GiaoDich = ID_TraNo_IN;
+            SET Ketqua_OUT = '0: Đã Trả nợ!';
+       END IF;
+       
+       IF LoaiGiaoDich_IN = 'Doi' AND idnganhanglienket_A = 1 AND idnganhanglienket_B = 1 THEN
+            INSERT INTO GiaoDich (ID_TaiKhoan_TTTK_A, ID_NganHangLienKet_A, ID_TaiKhoan_TTTK_B, ID_NganHangLienKet_B, SoTien, LoaiGiaoDich, GhiChu, NguoiTraPhi, ID_TraNo, ThoiGian, TinhTrang)       
+            VALUES (ID_TaiKhoan_TTTK_A_IN, idnganhanglienket_A, ID_TaiKhoan_TTTK_B_IN, idnganhanglienket_B, SoTien_IN, 'Doi', GhiChu_IN, NguoiTraPhi_IN, 0, TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP()), 'DangDoi');
+       	SET Ketqua_OUT = '0: Đã đòi!';
+       END IF;
+     END IF;
+END$$
 
 -- --------------------------------------------------------
 
