@@ -229,6 +229,126 @@ BEGIN
         SET Ketqua_OUT = '0: Khóa thành công!';
 END$$
 
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_SuaBietDanh` (IN `Username_IN` VARCHAR(128) CHARSET utf8mb4, IN `BietDanh_IN` VARCHAR(128) CHARSET utf8mb4, IN `ID_TaiKhoan_TTTK_B_IN` INT, IN `TenNganHang_IN` VARCHAR(128) CHARSET utf8mb4, OUT `Ketqua_OUT` VARCHAR(128) CHARSET utf8mb4)  NO SQL
+BEGIN
+ 	DECLARE iduser int;
+    DECLARE idnh int;
+    DECLARE ktra int;
+    SET iduser = (SELECT ID_TaiKhoan FROM TaiKhoan WHERE Username = Username_IN);
+    SET idnh = (SELECT ID_NganHangLienKet FROM NganHangLienKet WHERE TenNganHang = TenNganHang_IN);
+    SET ktra = 0;
+    IF EXISTS(SELECT* FROM DS_GDDN WHERE ID_TaiKhoan_A	= iduser AND ID_TaiKhoan_TTTK_B	!= ID_TaiKhoan_TTTK_B_IN AND ID_NganHangLienKet != idnh AND BietDanh = BietDanh_IN) THEN
+    	SET Ketqua_OUT = '1: Biệt danh bạn đặt bị trùng';
+        SET ktra = 1;
+    END IF;
+
+    
+    IF BietDanh_IN ='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 2: Biệt danh không được để trống!');
+        
+        SET ktra = 1;
+    END IF;    
+
+   
+    IF (LENGTH(BietDanh_IN) >= 50 or LENGTH(BietDanh_IN) <= 1) and BietDanh_IN != '' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 3: Biệt danh nhiều hơn 1 và nhỏ hơn 50 ký tự!');
+        SET ktra = 1;
+    END IF;
+
+    IF(ktra = 0) THEN
+    	UPDATE DS_GDDN
+        SET BietDanh = BietDanh_IN
+		WHERE ID_TaiKhoan_A	= iduser AND ID_TaiKhoan_TTTK_B	= ID_TaiKhoan_TTTK_B_IN AND ID_NganHangLienKet = idnh;
+        SET Ketqua_OUT = '0: Sửa thành công!';
+    END IF;
+END$$
+
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_SuaNganHang` (IN `TenNganHangCu_IN` VARCHAR(128) CHARSET utf8mb4, IN `TenNganHangMoi_IN` VARCHAR(128) CHARSET utf8mb4, OUT `Ketqua_OUT` VARCHAR(128) CHARSET utf8mb4)  NO SQL
+BEGIN
+    DECLARE ktra int;
+    DECLARE idNH int;
+    SET idNH = (SELECT ID_NganHangLienKet FROM NganHangLienKet WHERE TenNganHang = TenNganHangCu_IN);
+    SET ktra = 0;
+    IF EXISTS(SELECT* FROM NganHangLienKet WHERE TenNganHang = TenNganHangMoi_IN AND ID_NganHangLienKet	!= idNH) THEN
+    	SET Ketqua_OUT = '1: Ngân Hàng này đã tồn tại!';
+        SET ktra = 1;
+    END IF;
+
+    
+    IF TenNganHangMoi_IN ='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 2: Ngân Hàng không được để trống!');
+        
+        SET ktra = 1;
+    END IF;    
+
+   
+    IF (LENGTH(TenNganHangMoi_IN) >= 50 or LENGTH(TenNganHangMoi_IN) <= 1) and TenNganHangMoi_IN != '' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 3: tên Ngân Hàng nhiều hơn 1 và nhỏ hơn 50 ký tự!');
+        SET ktra = 1;
+    END IF;
+
+    IF(ktra = 0) THEN
+    	UPDATE NganHangLienKet
+        SET TenNganHang = TenNganHangMoi_IN
+        WHERE TenNganHang = TenNganHangCu_IN;
+        SET Ketqua_OUT = '0: Sửa thành công!';
+    END IF;
+END$$
+
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_SuaTaiKhoan` (IN `Username_IN` VARCHAR(64) CHARSET utf8mb4, IN `HoTen_IN` VARCHAR(128) CHARSET utf8mb4, IN `Email_IN` VARCHAR(128) CHARSET utf8mb4, IN `DienThoai_IN` INT(12), OUT `Ketqua_OUT` VARCHAR(256) CHARSET utf8mb4)  NO SQL
+BEGIN
+    DECLARE ktra int;
+    SET ktra = 0;
+    IF Email_IN='' THEN
+    	SET Ketqua_OUT = '1: Bạn chưa nhập email';
+        SET ktra = 1;
+    END IF;
+
+    
+        IF (LENGTH(Email_IN) >= 50 or LENGTH(Email_IN) <= 5) and Email_IN !='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 3: Email có số lượng từ không hợp lệ!');
+        
+        SET ktra = 1;
+    END IF;    
+
+    IF Username_IN ='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 4: Bạn chưa nhập  Username');
+        SET ktra = 1;
+    END IF;
+
+    
+
+    IF HoTen_IN='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 9: Bạn chưa nhập tên!');
+        SET ktra = 1;
+    END IF;
+    
+    IF (LENGTH(HoTen_IN) >= 50 or LENGTH(HoTen_IN) <= 5) and HoTen_IN != '' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 10: Họ tên có số lượng từ không hợp lệ!');
+        SET ktra = 1;
+    END IF;
+
+    IF DienThoai_IN ='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 11: Bạn chưa nhập  SDT');
+        SET ktra = 1;
+    END IF;
+
+
+    IF (LENGTH(DienThoai_IN) >= 15 or LENGTH(DienThoai_IN) <= 5) and Email_IN !='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 13: SDT có số lượng từ không hợp lệ!');
+        
+        SET ktra = 1;
+    END IF;
+  
+
+    IF(ktra = 0) THEN
+    	UPDATE TaiKhoan
+        SET HoTen = HoTen_IN, Email = Email_IN, DienThoai = DienThoai_IN
+		WHERE Username = Username_IN;
+        SET Ketqua_OUT = '0: Sửa thành công!';
+    END IF;
+END$$
+
 -- --------------------------------------------------------
 
 --
