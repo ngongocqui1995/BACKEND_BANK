@@ -14,5 +14,7 @@ router.put('/', verifyAccessToken, user.update)
 
 router.post('/giaodich', verifyAccessToken, user.giaodich)
 
+router.post('/giaodichdoino', verifyAccessToken, user.giaodichdoino)
+
 // other routes
 module.exports = router
