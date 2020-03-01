@@ -13,7 +13,7 @@ class AuthController extends BaseController {
     this.authBis = new AuthBis(mongoose)
   }
 
-  verifyRefreshToken = (refreshtoken) => {
+  verifyRefreshToken(refreshtoken) {
     let decode = undefined
 
     try{
