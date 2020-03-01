@@ -9,6 +9,40 @@ class UserController extends BaseController {
     super(mongoose)
   }
 
+  async update(req, res) {
+    let { accesstoken, refreshtoken } = req
+    let { name, gmail, sdt } = req.body
+
+    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    // sửa tài khoản
+    let sql_1 = "CALL proc_SuaTaiKhoan(?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, name, gmail, sdt])
+
+    let { state, message } = getStateMessage(result_1[result_1.length-1])
+        
+    if(err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+    if(!state) return res.status(422).send({
+      success: false,
+      message: message
+    })
+
+    console.log("-Sửa user thành công!!!")
+
+    res.send({
+        success: true,
+        message: message
+    })
+  }
+
   async giaodich(req, res) {
     let { accesstoken, refreshtoken } = req
     let { soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu } = req.body
