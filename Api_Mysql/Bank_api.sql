@@ -349,6 +349,72 @@ BEGIN
     END IF;
 END$$
 
+
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_TaoTKTietKiem` (IN `Username_IN` VARCHAR(64) CHARSET utf8mb4, OUT `Ketqua_OUT` VARCHAR(256) CHARSET utf8mb4)  NO SQL
+BEGIN
+	DECLARE idtk INT;
+    SET idtk = (SELECT ID_TaiKhoan FROM TaiKhoan WHERE Username = Username_IN);
+    INSERT INTO TaiKhoan_TTTK (ID_TaiKhoanNguoiDung	, SoDu, Loai, TinhTrang)
+	VALUES (idtk, 0, 'TK', 'BinhThuong');
+    SET Ketqua_OUT = '0:Thêm thành công!';
+END$$
+
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_ThemAuth_RefreshToken` (IN `Username_IN` VARCHAR(128) CHARSET utf8mb4, IN `ClientID_IN` VARCHAR(528) CHARSET utf8mb4, IN `Refresh_token_IN` VARCHAR(528) CHARSET utf8mb4, IN `Type_IN` VARCHAR(528) CHARSET utf8mb4, IN `Limit_Time_IN` INT, OUT `Ketqua_OUT` VARCHAR(256) CHARSET utf8mb4)  NO SQL
+BEGIN
+    DECLARE gettime nvarchar(128);
+    IF Type_IN ='giay' THEN
+    	SET gettime = (SELECT TIMESTAMPADD(SECOND,Limit_Time_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP())) );
+    ELSEIF Type_IN ='phut' THEN
+    	SET gettime = (SELECT TIMESTAMPADD(MINUTE,Limit_Time_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP())) );	
+   	ELSEIF Type_IN ='gio' THEN
+    	SET gettime = (SELECT TIMESTAMPADD(HOUR,Limit_Time_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP())) );
+    ELSEIF Type_IN ='ngay' THEN
+    	SET gettime = (SELECT TIMESTAMPADD(DAY,Limit_Time_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP())) );
+    ELSEIF Type_IN ='tuan' THEN
+    	SET gettime = (SELECT TIMESTAMPADD(WEEK,Limit_Time_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP())) );
+    ELSEIF Type_IN ='thang' THEN
+    	SET gettime = (SELECT TIMESTAMPADD(MONTH,Limit_Time_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP())) );
+    ELSEIF Type_IN ='nam' THEN
+    	SET gettime = (SELECT TIMESTAMPADD(YEAR,Limit_Time_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP())) );
+    END IF;
+    	INSERT INTO Auth_RefreshToken(Username, ClientID, Refresh_token, Start_Time, End_Time, Type, Limit_Time )
+        VALUES(Username_IN, ClientID_IN, Refresh_token_IN,TIMESTAMPADD(HOUR,7,CURRENT_TIMESTAMP()), gettime, Type_IN, Limit_Time_IN);
+        SET Ketqua_OUT = '0: Thêm 1 session thành công!';
+END$$
+
+CREATE DEFINER=`thongbao`@`localhost` PROCEDURE `proc_ThemBietDanh` (IN `Username_IN` VARCHAR(128) CHARSET utf8mb4, IN `BietDanh_IN` VARCHAR(128) CHARSET utf8mb4, IN `ID_TaiKhoan_TTTK_B_IN` INT, IN `TenNganHang_IN` VARCHAR(128) CHARSET utf8mb4, OUT `Ketqua_OUT` VARCHAR(128) CHARSET utf8mb4)  NO SQL
+BEGIN
+ 	DECLARE iduser int;
+    DECLARE idnh int;
+    DECLARE ktra int;
+    SET iduser = (SELECT ID_TaiKhoan FROM TaiKhoan WHERE Username = Username_IN);
+    SET idnh = (SELECT ID_NganHangLienKet FROM NganHangLienKet WHERE TenNganHang = TenNganHang_IN);
+    SET ktra = 0;
+    IF EXISTS(SELECT* FROM DS_GDDN WHERE ID_TaiKhoan_A	= iduser AND ID_TaiKhoan_TTTK_B	!= ID_TaiKhoan_TTTK_B_IN AND ID_NganHangLienKet != idnh AND BietDanh = BietDanh_IN) THEN
+    	SET Ketqua_OUT = '1: Biệt danh bạn đặt bị trùng';
+        SET ktra = 1;
+    END IF;
+
+    
+    IF BietDanh_IN ='' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 2: Biệt danh không được để trống!');
+        
+        SET ktra = 1;
+    END IF;    
+
+   
+    IF (LENGTH(BietDanh_IN) >= 50 or LENGTH(BietDanh_IN) <= 1) and BietDanh_IN != '' THEN
+    	SET Ketqua_OUT = CONCAT_WS(' ',Ketqua_OUT, ', 3: Biệt danh nhiều hơn 1 và nhỏ hơn 50 ký tự!');
+        SET ktra = 1;
+    END IF;
+
+    IF(ktra = 0) THEN
+    	INSERT INTO DS_GDDN(ID_TaiKhoan_A, ID_TaiKhoan_TTTK_B, ID_NganHangLienKet, BietDanh)
+        VALUES(iduser, ID_TaiKhoan_TTTK_B_IN, idnh, BietDanh_IN);
+        SET Ketqua_OUT = '0: Thêm thành công!';
+    END IF;
+END$$
+
 -- --------------------------------------------------------
 
 --
