@@ -35,6 +35,13 @@ class AuthController extends BaseController {
       })
     }
 
+    if (!refreshtoken.rtoken) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
     // kiểm tra refreshtoken có tồn tại ko
     let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', refreshtoken.ClientID, ''])
