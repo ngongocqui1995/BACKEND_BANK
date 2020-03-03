@@ -8,5 +8,7 @@ router.post('/login', auth.login)
 
 router.get('/gettoken', verifyAccessToken, auth.getToken)
 
+router.post('/deletetoken', auth.deleteToken)
+
 // other routes
 module.exports = router

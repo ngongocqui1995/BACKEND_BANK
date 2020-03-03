@@ -13,6 +13,32 @@ class AuthController extends BaseController {
     this.authBis = new AuthBis(mongoose)
   }
 
+  async deleteToken(req, res) {
+    let { username } = req.body
+    
+    // xoá refresh token
+    let sql = "CALL proc_XoaAuth_RefreshToken(?,@kq); select @kq as `message`;";
+    let [err, [result, fields]] = await queryDB(sql, [username])
+
+    let { state, message } = getStateMessage(result[result.length-1])
+        
+    if(err) return res.status(422).send({
+      success: false,
+      message: err
+    })
+    if(!state) return res.status(422).send({
+      success: false,
+      message: message
+    })
+
+    console.log("-Xoá refresh token thành công!!!")
+
+    res.send({
+      message: "Xoá refresh token thành công!!!",
+      success: true
+    })
+  }
+
   verifyRefreshToken(refreshtoken) {
     let decode = undefined
 
