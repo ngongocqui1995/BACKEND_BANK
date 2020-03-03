@@ -10,10 +10,17 @@ class UserController extends BaseController {
   }
 
   async giaodichdoino(req, res) {
-    let { accesstoken, refreshtoken } = req
+    let { accesstoken } = req
     let { soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu } = req.body
 
-    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
       return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
@@ -43,10 +50,17 @@ class UserController extends BaseController {
   }
 
   async update(req, res) {
-    let { accesstoken, refreshtoken } = req
+    let { accesstoken } = req
     let { name, gmail, sdt } = req.body
 
-    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
       return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
@@ -77,10 +91,17 @@ class UserController extends BaseController {
   }
 
   async giaodich(req, res) {
-    let { accesstoken, refreshtoken } = req
+    let { accesstoken } = req
     let { soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu } = req.body
 
-    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
       return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
@@ -110,10 +131,17 @@ class UserController extends BaseController {
   }
 
   async create(req, res) {
-    let { accesstoken, refreshtoken } = req
+    let { accesstoken } = req
     let { username, password, name, gmail, sdt } = req.body
 
-    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
       return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
@@ -163,11 +191,18 @@ class UserController extends BaseController {
   }
 
   async info(req, res) {
-    let { accesstoken, refreshtoken } = req
+    let { accesstoken } = req
     let { username } = req.body
 
-    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
-      return res.status(422).send({
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
+      return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
       })
@@ -201,9 +236,16 @@ class UserController extends BaseController {
   }
 
   async getAll(req, res) {
-    let { accesstoken, refreshtoken } = req
+    let { accesstoken } = req
 
-    if (isEmpty(accesstoken) || isEmpty(refreshtoken)) {
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
       return res.status(401).send({
         success: false,
         message: "-Lấy token thất bại !!!"
