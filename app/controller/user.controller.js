@@ -9,6 +9,41 @@ class UserController extends BaseController {
     super(mongoose)
   }
 
+  async listgiaodich(req, res) {
+    let { accesstoken } = req
+
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    // lấy danh sách giao dịch
+    let sql_1 = "CALL proc_viewUserDSGiaoDichNo(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, '', '', 1, 10000, 'ThoiGian', 'giam'])
+
+    if(err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+
+    console.log("-Lấy danh sách giao dịch thành công!!!")
+
+    res.send({
+        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+        success: true,
+        message: "Lấy danh sách giao dịch thành công!!!"
+    })
+  }
+
   async giaodichdoino(req, res) {
     let { accesstoken } = req
     let { soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu } = req.body
@@ -255,23 +290,16 @@ class UserController extends BaseController {
     // lấy tất cả tài khoản ngân hàng
     let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, '', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
-    
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
 
     if(err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(numberRow.count === 0) return res.status(422).send({
-      success: false,
-      message: "Lấy thông tin thất bại!!!"
-    })
 
     console.log("-Lấy user thành công!!!")
 
     res.send({
-        user: result_1[0] ? result_1[0] : [],
+        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
         success: true,
         message: "Lấy user thành công!!!"
     })
