@@ -289,7 +289,112 @@ class UserController extends BaseController {
 
     // lấy tất cả tài khoản ngân hàng
     let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, '', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
+
+    if(err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+
+    console.log("-Lấy user thành công!!!")
+
+    res.send({
+        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+        success: true,
+        message: "Lấy user thành công!!!"
+    })
+  }
+
+  async danhsachnhanvien(req, res) {
+    let { accesstoken } = req
+
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    // lấy tài khoản ngân hàng của nhân viên
+    let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'NV', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
+
+    if(err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+
+    console.log("-Lấy user thành công!!!")
+
+    res.send({
+        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+        success: true,
+        message: "Lấy user thành công!!!"
+    })
+  }
+
+  async danhsachtt(req, res) {
+    let { accesstoken } = req
+
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    // lấy tài khoản ngân hàng của tt
+    let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'TT', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
+
+    if(err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+
+    console.log("-Lấy user thành công!!!")
+
+    res.send({
+        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+        success: true,
+        message: "Lấy user thành công!!!"
+    })
+  }
+
+  async danhsachtk(req, res) {
+    let { accesstoken } = req
+
+    if (isEmpty(accesstoken)) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    if (!accesstoken.atoken) {
+      return res.status(401).send({
+        success: false,
+        message: "-Lấy token thất bại !!!"
+      })
+    }
+
+    // lấy tài khoản ngân hàng của tk
+    let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'TK', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
 
     if(err_1) return res.status(422).send({
       success: false,
