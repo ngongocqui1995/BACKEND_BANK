@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index"
+    "start": "nodemon index"
   },
   "dependencies": {
     "auto-bind": "^3.0.0",
@@ -22,6 +22,7 @@
     "morgan": "^1.9.1",
     "mysql-promise": "^5.0.0",
     "mysql2": "^2.1.0",
+    "nodemon": "^2.0.2",
     "parse-error": "^0.2.0",
     "ramda": "^0.27.0",
     "rand-token": "^0.4.0"

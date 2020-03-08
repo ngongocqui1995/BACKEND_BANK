@@ -13,81 +13,31 @@ class AuthController extends BaseController {
     this.authBis = new AuthBis(mongoose)
   }
 
-  async deleteToken(req, res) {
-    let { username } = req.body
-    
-    // xoá refresh token
-    let sql = "CALL proc_XoaAuth_RefreshToken(?,@kq); select @kq as `message`;";
-    let [err, [result, fields]] = await queryDB(sql, [username])
-
-    let { state, message } = getStateMessage(result[result.length-1])
-        
-    if(err) return res.status(422).send({
-      success: false,
-      message: err
-    })
-    if(!state) return res.status(422).send({
-      success: false,
-      message: message
-    })
-
-    console.log("-Xoá refresh token thành công!!!")
-
-    res.send({
-      message: "Xoá refresh token thành công!!!",
-      success: true
-    })
-  }
-
-  verifyRefreshToken(refreshtoken) {
-    let decode = undefined
-
-    try{
-      decode = jwt.verify(refreshtoken, 'SANG_TOKEN')
-    } catch(err) {
-      // console.log(err)
-    }
-
-    return decode
-  }
-
-  async getToken(req, res) {
-    let { refreshtoken } = req
-
-    if (isEmpty(refreshtoken)) {
-      return res.status(401).send({
-        success: false,
-        message: "-Lấy token thất bại !!!"
-      })
-    }
-
-    if (!refreshtoken.rtoken) {
-      return res.status(401).send({
-        success: false,
-        message: "-Lấy token thất bại !!!"
-      })
-    }
-
+  async getNewToken(req, res) {
+    const refreshtoken = req.body
     // kiểm tra refreshtoken có tồn tại ko
     let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', refreshtoken.ClientID, ''])
-    
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, 
+      [refreshtoken.payload.username, refreshtoken.payload.ClientID, refreshtoken.main])
+      
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
-
+    
     if(err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
+
     if(numberRow.count === 0) return res.status(422).send({
       success: false,
       message: "Lấy thông tin thất bại!!!"
     })
 
     console.log("-Refreshtoken tồn tại và không hết hạn!!!")
-
     // lấy accesstoken
-    const [err_2, auth] = await this.to(this.authBis.authUser({Username: refreshtoken.username, ID_TaiKhoan: refreshtoken.ClientID}))
+    const [err_2, auth] = await this.to(this.authBis.authUser({
+      Username: refreshtoken.payload.username,
+      ID_TaiKhoan: refreshtoken.payload.ClientID}))
     if(err_2) return res.status(422).send({
       success: false,
       message: err_2
@@ -179,8 +129,7 @@ class AuthController extends BaseController {
     })
 
     let refreshToken = numberRow_4.row[0] ? numberRow_4.row[0].Refresh_token : ""
-    let decodeRefreshToken = this.verifyRefreshToken(refreshToken)
-    if(numberRow_4.count === 0 || !decodeRefreshToken) {
+    if(numberRow_4.count === 0) {
       // lưu refreshToken vào db
       let sql_3 = "CALL proc_ThemAuth_RefreshToken(?,?,?,?,?,@kq); select @kq as `message`;";
       let [err_3, [result_3, fields_3]] = await queryDB(sql_3, [username, user.ID_TaiKhoan, auth.refreshToken, 'thang', '1'])

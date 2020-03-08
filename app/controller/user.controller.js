@@ -30,7 +30,7 @@ class UserController extends BaseController {
     let sql_1 = "CALL proc_viewUserDSGiaoDichNo(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, '', '', 1, 10000, 'ThoiGian', 'giam'])
 
-    if(err_1) return res.status(422).send({
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
@@ -38,9 +38,9 @@ class UserController extends BaseController {
     console.log("-Lấy danh sách giao dịch thành công!!!")
 
     res.send({
-        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
-        success: true,
-        message: "Lấy danh sách giao dịch thành công!!!"
+      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+      success: true,
+      message: "Lấy danh sách giao dịch thành công!!!"
     })
   }
 
@@ -65,14 +65,14 @@ class UserController extends BaseController {
     // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.ClientID, 'BBC', soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu, 'A', ''])
-    
-    let { state, message } = getStateMessage(result_1[result_1.length-1])
-        
-    if(err_1) return res.status(422).send({
+
+    let { state, message } = getStateMessage(result_1[result_1.length - 1])
+
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(!state) return res.status(422).send({
+    if (!state) return res.status(422).send({
       success: false,
       message: message
     })
@@ -106,13 +106,13 @@ class UserController extends BaseController {
     let sql_1 = "CALL proc_SuaTaiKhoan(?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.username, name, gmail, sdt])
 
-    let { state, message } = getStateMessage(result_1[result_1.length-1])
-        
-    if(err_1) return res.status(422).send({
+    let { state, message } = getStateMessage(result_1[result_1.length - 1])
+
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(!state) return res.status(422).send({
+    if (!state) return res.status(422).send({
       success: false,
       message: message
     })
@@ -120,8 +120,8 @@ class UserController extends BaseController {
     console.log("-Sửa user thành công!!!")
 
     res.send({
-        success: true,
-        message: message
+      success: true,
+      message: message
     })
   }
 
@@ -146,14 +146,14 @@ class UserController extends BaseController {
     // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.ClientID, 'BBC', soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu, 'A', ''])
-    
-    let { state, message } = getStateMessage(result_1[result_1.length-1])
-        
-    if(err_1) return res.status(422).send({
+
+    let { state, message } = getStateMessage(result_1[result_1.length - 1])
+
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(!state) return res.status(422).send({
+    if (!state) return res.status(422).send({
       success: false,
       message: message
     })
@@ -166,37 +166,23 @@ class UserController extends BaseController {
   }
 
   async create(req, res) {
-    let { accesstoken } = req
     let { username, password, name, gmail, sdt } = req.body
-
-    if (isEmpty(accesstoken)) {
-      return res.status(401).send({
-        success: false,
-        message: "-Lấy token thất bại !!!"
-      })
-    }
-
-    if (!accesstoken.atoken) {
-      return res.status(401).send({
-        success: false,
-        message: "-Lấy token thất bại !!!"
-      })
-    }
 
     // kiểm tra user có tồn tại ko
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
-    
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
 
-    if(err_1) return res.status(422).send({
+    let numberRow = { count: 0 }
+    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
+
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(numberRow.count === 1) return res.status(402).send({
+
+    if (numberRow.count === 1) return res.status(402).send({
       success: false,
-      message: "Email đã tồn tại!!!"
+      message: "User này đã tồn tại trong hệ thống!"
     })
 
     console.log("-Kiểm tra user thành công!!!")
@@ -205,14 +191,14 @@ class UserController extends BaseController {
     let hashpass = md5(password)
     let sql_2 = "CALL proc_DangKy(?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_2, [result_2, fields_2]] = await queryDB(sql_2, [username, hashpass, name, gmail, sdt])
-    
-    let { state, message } = getStateMessage(result_2[result_2.length-1])
-        
-    if(err_2) return res.status(422).send({
+
+    let { state, message } = getStateMessage(result_2[result_2.length - 1])
+
+    if (err_2) return res.status(422).send({
       success: false,
       message: err_2
     })
-    if(!state) return res.status(422).send({
+    if (!state) return res.status(422).send({
       success: false,
       message: message
     })
@@ -220,8 +206,8 @@ class UserController extends BaseController {
     console.log("-Đăng ký user thành công!!!")
 
     res.send({
-        success: true,
-        message: message
+      success: true,
+      message: message
     })
   }
 
@@ -246,15 +232,15 @@ class UserController extends BaseController {
     // lấy thông tin user
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
-    
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length-1])
 
-    if(err_1) return res.status(422).send({
+    let numberRow = { count: 0 }
+    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
+
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if(numberRow.count === 0) return res.status(422).send({
+    if (numberRow.count === 0) return res.status(422).send({
       success: false,
       message: "Lấy thông tin thất bại!!!"
     })
@@ -264,9 +250,9 @@ class UserController extends BaseController {
     let userInfo = result_1[0] ? result_1[0][0] : {}
 
     res.send({
-        user: userInfo,
-        success: true,
-        message: "Lấy thông tin user thành công!!!"
+      user: userInfo,
+      success: true,
+      message: "Lấy thông tin user thành công!!!"
     })
   }
 
@@ -291,7 +277,7 @@ class UserController extends BaseController {
     let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
 
-    if(err_1) return res.status(422).send({
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
@@ -299,9 +285,9 @@ class UserController extends BaseController {
     console.log("-Lấy user thành công!!!")
 
     res.send({
-        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
-        success: true,
-        message: "Lấy user thành công!!!"
+      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+      success: true,
+      message: "Lấy user thành công!!!"
     })
   }
 
@@ -326,7 +312,7 @@ class UserController extends BaseController {
     let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'NV', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
 
-    if(err_1) return res.status(422).send({
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
@@ -334,9 +320,9 @@ class UserController extends BaseController {
     console.log("-Lấy user thành công!!!")
 
     res.send({
-        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
-        success: true,
-        message: "Lấy user thành công!!!"
+      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+      success: true,
+      message: "Lấy user thành công!!!"
     })
   }
 
@@ -361,7 +347,7 @@ class UserController extends BaseController {
     let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'TT', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
 
-    if(err_1) return res.status(422).send({
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
@@ -369,9 +355,9 @@ class UserController extends BaseController {
     console.log("-Lấy user thành công!!!")
 
     res.send({
-        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
-        success: true,
-        message: "Lấy user thành công!!!"
+      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+      success: true,
+      message: "Lấy user thành công!!!"
     })
   }
 
@@ -396,7 +382,7 @@ class UserController extends BaseController {
     let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'TK', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
 
-    if(err_1) return res.status(422).send({
+    if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
@@ -404,9 +390,9 @@ class UserController extends BaseController {
     console.log("-Lấy user thành công!!!")
 
     res.send({
-        user: result_1 ? result_1[0] ? result_1[0] : [] : [],
-        success: true,
-        message: "Lấy user thành công!!!"
+      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+      success: true,
+      message: "Lấy user thành công!!!"
     })
   }
 }
