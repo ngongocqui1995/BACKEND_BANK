@@ -8,5 +8,7 @@ router.post('/login', auth.login)
 
 router.get('/getNewToken', verifyRefreshToken, auth.getNewToken)
 
+router.post('/change/password', auth.changePass)
+
 // other routes
 module.exports = router

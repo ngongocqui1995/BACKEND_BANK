@@ -4,7 +4,7 @@ const user = new UserController()
 const {verifyAccessToken} = require('../../middleware/auth.mware')
 
 //CRUD
-router.get('/info', verifyAccessToken, user.info)
+router.get('/detail/:username/info', verifyAccessToken, user.info)
 
 router.get('/', verifyAccessToken, user.getAll)
 
@@ -12,7 +12,7 @@ router.get('/danhsachnhanvien', verifyAccessToken, user.danhsachnhanvien)
 
 router.get('/danhsachtt', verifyAccessToken, user.danhsachtt)
 
-router.get('/danhsachtk', verifyAccessToken, user.danhsachtk)
+router.get('/danhsach/tk/:username', verifyAccessToken, user.danhsachtk)
 
 router.post('/', verifyAccessToken, user.create)
 

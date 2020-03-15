@@ -39,7 +39,7 @@ app.use('/api', routes)
 
 // error handling
 app.use((req, res, next) => {
-  throw createError(404, 'Resource not found.');
+  throw createError(422, 'Resource not found!');
 })
 
 app.use(function (err, req, res, next) {

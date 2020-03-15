@@ -152,6 +152,31 @@ class AuthController extends BaseController {
       message: message
     })
   }
+
+  async changePass(req, res) {
+    const { username, password } = req.body
+    console.log("DATA= ", username + password)
+    let hashPassword = md5(password)
+    let sql = "CALL proc_DoiPassTaiKhoan(?,?,@kq); select @kq as `message`;";
+    let [err, [result, fields]] = await queryDB(sql, [username, hashPassword])
+
+    let { state, message } = getStateMessage(result[result.length - 1])
+
+    if(err) return res.status(422).send({
+      success: false,
+      message: err
+    })
+
+    if (!state) return res.status(422).send({
+      success: false,
+      message: message
+    })
+
+    return res.send({
+      success: true,
+      message: 'Đổi mật khẩu thành công!'
+    })
+  }
 }
 
 module.exports = AuthController
