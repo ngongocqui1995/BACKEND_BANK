@@ -6,7 +6,7 @@ module.exports.verifyAccessToken = (req, res, next) => {
 
   if (token) {
     jwt.verify(token, 'SANG_TOKEN', function (err, payload) {
-      if (err) throw createError(401, err);
+      if (err) throw createError(403, err);
 
       next()
     })
