@@ -165,54 +165,9 @@ class UserController extends BaseController {
     })
   }
 
-  async create(req, res) {
-    let { username, password, name, gmail, sdt } = req.body
-
-    // kiểm tra user có tồn tại ko
-    let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
-
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
-    if (err_1) return res.status(422).send({
-      success: false,
-      message: err_1
-    })
-
-    if (numberRow.count === 1) return res.status(402).send({
-      success: false,
-      message: "User này đã tồn tại trong hệ thống!"
-    })
-
-    console.log("-Kiểm tra user thành công!!!")
-
-    // đăng kí tài khoản
-    let hashpass = md5(password)
-    let sql_2 = "CALL proc_DangKy(?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_2, [result_2, fields_2]] = await queryDB(sql_2, [username, hashpass, name, gmail, sdt])
-
-    let { state, message } = getStateMessage(result_2[result_2.length - 1])
-
-    if (err_2) return res.status(422).send({
-      success: false,
-      message: err_2
-    })
-    if (!state) return res.status(422).send({
-      success: false,
-      message: message
-    })
-
-    console.log("-Đăng ký user thành công!!!")
-
-    res.send({
-      success: true,
-      message: message
-    })
-  }
 
   async info(req, res) {
-    const {username} = req.params
+    const { username } = req.params
 
     // lấy thông tin user
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
@@ -235,7 +190,7 @@ class UserController extends BaseController {
     let userInfo = result_1[0] ? result_1[0][0] : {}
 
     res.send({
-      user: userInfo,
+      data: userInfo,
       success: true,
       message: "Lấy thông tin user thành công!!!"
     })
@@ -261,10 +216,13 @@ class UserController extends BaseController {
     })
   }
 
-  async danhsachnhanvien(req, res) {
-    // lấy tài khoản ngân hàng của nhân viên
-    let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'NV', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
+  async getAccountByType(req, res) {
+    const { type, username } = req.params
+
+    if(type === 'all') type = '' // set default is get all
+
+    const sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    const [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, type, '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'giam'])
 
     if (err_1) return res.status(422).send({
       success: false,
@@ -274,44 +232,7 @@ class UserController extends BaseController {
     console.log("-Lấy user thành công!!!")
 
     res.send({
-      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
-      success: true,
-      message: "Lấy user thành công!!!"
-    })
-  }
-
-  async danhsachtt(req, res) {
-    // lấy tài khoản ngân hàng của tt
-    let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'TT', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
-
-    if (err_1) return res.status(422).send({
-      success: false,
-      message: err_1
-    })
-
-    console.log("-Lấy user thành công!!!")
-
-    res.send({
-      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
-      success: true,
-      message: "Lấy user thành công!!!"
-    })
-  }
-
-  async danhsachtk(req, res) {
-    const {username} = req.params
-    // lấy tài khoản ngân hàng của tk
-    let sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, 'TK', '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'tang'])
-
-    if (err_1) return res.status(422).send({
-      success: false,
-      message: err_1
-    })
-
-    res.send({
-      user: result_1 ? result_1[0] ? result_1[0] : [] : [],
+      data: result_1 ? result_1[0] ? result_1[0] : [] : [],
       success: true,
       message: "Lấy user thành công!!!"
     })
