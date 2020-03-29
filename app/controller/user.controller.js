@@ -125,45 +125,7 @@ class UserController extends BaseController {
     })
   }
 
-  async giaodich(req, res) {
-    let { accesstoken } = req
-    let { soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu } = req.body
-
-    if (isEmpty(accesstoken)) {
-      return res.status(401).send({
-        success: false,
-        message: "-Lấy token thất bại !!!"
-      })
-    }
-
-    if (!accesstoken.atoken) {
-      return res.status(401).send({
-        success: false,
-        message: "-Lấy token thất bại !!!"
-      })
-    }
-
-    // chuyển tiền nội bộ
-    let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accesstoken.ClientID, 'BBC', soTaiKhoan, tenNganHang, soTien, loaiGiaoDich, ghiChu, 'A', ''])
-
-    let { state, message } = getStateMessage(result_1[result_1.length - 1])
-
-    if (err_1) return res.status(422).send({
-      success: false,
-      message: err_1
-    })
-    if (!state) return res.status(422).send({
-      success: false,
-      message: message
-    })
-    console.log("-Chuyển tiền nội bộ thành công!!!")
-
-    res.send({
-      success: true,
-      message: message
-    })
-  }
+  
 
 
   async info(req, res) {
@@ -217,7 +179,7 @@ class UserController extends BaseController {
   }
 
   async getAccountByType(req, res) {
-    const { type, username } = req.params
+    let { type, username } = req.params
 
     if(type === 'all') type = '' // set default is get all
 

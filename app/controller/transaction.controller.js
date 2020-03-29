@@ -35,6 +35,26 @@ class TransactionController extends BaseController {
     })
   }
 
+  async getOne(req, res) {
+    // lấy danh sách giao dịch
+    const {username} = req.params
+    let sql_1 = "CALL proc_viewUserDSGiaoDichNo(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 10000, 'ThoiGian', 'giam'])
+
+    if (err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+
+    console.log("-Lấy danh sách giao dịch thành công!!!")
+
+    res.send({
+      data: result_1 ? result_1[0] ? result_1[0] : [] : [],
+      success: true,
+      message: "Lấy danh sách giao dịch thành công!!!"
+    })
+  }
+
   async internalTrans(req, res) {
     let { accountNumberA, accountNumberB, amount, note, payer} = req.body
 

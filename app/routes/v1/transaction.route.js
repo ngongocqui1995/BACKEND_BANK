@@ -6,6 +6,8 @@ const {verifyAccessToken} = require('../../middleware/auth.mware')
 
 router.get('/', verifyAccessToken, trans.getAll)
 
+router.get('/:username', verifyAccessToken, trans.getOne)
+
 router.post('/internal', verifyAccessToken, trans.internalTrans)
 // other routes
 module.exports = router
