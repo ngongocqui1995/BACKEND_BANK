@@ -1,11 +1,11 @@
 const router = require('express').Router()
-const ClientController = require(`${global.APP_CONTROLLER_PATH}/client.controller`)
+const DebtController = require(`${global.APP_CONTROLLER_PATH}/debt.controller`)
 
-const client = new ClientController()
+const debt = new DebtController()
 const {verifyAccessToken} = require('../../middleware/auth.mware')
 
-router.get('/', verifyAccessToken, client.getAll)
-router.post('/', verifyAccessToken, client.create)
+router.post('/', verifyAccessToken, debt.create)
+router.get('/:username', verifyAccessToken, debt.getOneByUser)
 
 // other routes
 module.exports = router

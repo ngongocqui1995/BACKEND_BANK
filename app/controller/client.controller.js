@@ -80,6 +80,32 @@ class ClientController extends BaseController {
       message: message
     })
   }
+
+  async getInfoByTKTT(req, res) {
+    const {id} = req.params
+    let sql_1 = "CALL proc_viewTTTKRaUser(?);";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [id])
+    console.log(result_1)
+    let numberRow = { count: 0 }
+    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
+
+    if (err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+    if (numberRow.count === 0) return res.status(422).send({
+      success: false,
+      message: "Lấy thông tin thất bại!!!"
+    })
+
+    console.log("-Lấy thông tin user thành công!!!")
+
+    res.send({
+      data: result_1[0],
+      success: true,
+      message: "Lấy thông tin user thành công!!!"
+    })
+  }
 }
 
 module.exports = ClientController

@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 
 let config = {
-    host: "johnny.heliohost.org",
+    host: "db4free.net",
     user: "thongbao",
     password: "8239198tamquysang",
     database: "thongbao_test",

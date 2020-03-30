@@ -13,5 +13,6 @@ router.use('/user', require(`${ROUTE_V1_PATH}/user.route`))
 router.use('/client', require(`${ROUTE_V1_PATH}/client.route`))
 router.use('/employee', require(`${ROUTE_V1_PATH}/employee.route`))
 router.use('/trans', require(`${ROUTE_V1_PATH}/transaction.route`))
+router.use('/debt', require(`${ROUTE_V1_PATH}/debt.route`))
 
 module.exports = router
