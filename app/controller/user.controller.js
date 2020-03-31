@@ -184,7 +184,7 @@ class UserController extends BaseController {
     if(type === 'all') type = '' // set default is get all
 
     const sql_1 = "CALL proc_viewTaiKhoanTTTK(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    const [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, type, '', '', 1, 10000, 'ID_TaiKhoanTTTK', 'giam'])
+    const [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username,'', type, '', 1, 10000, 'ID_TaiKhoanTTTK', 'giam'])
 
     if (err_1) return res.status(422).send({
       success: false,

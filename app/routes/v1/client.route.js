@@ -6,6 +6,7 @@ const {verifyAccessToken} = require('../../middleware/auth.mware')
 
 router.get('/', verifyAccessToken, client.getAll)
 router.post('/', verifyAccessToken, client.create)
+router.get('/tktt/:id', verifyAccessToken, client.getInfoByTKTT)
 
 // other routes
 module.exports = router
