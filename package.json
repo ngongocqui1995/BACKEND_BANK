@@ -22,6 +22,7 @@
     "morgan": "^1.9.1",
     "mysql-promise": "^5.0.0",
     "mysql2": "^2.1.0",
+    "nodemailer": "^6.4.6",
     "nodemon": "^2.0.2",
     "parse-error": "^0.2.0",
     "ramda": "^0.27.0",
