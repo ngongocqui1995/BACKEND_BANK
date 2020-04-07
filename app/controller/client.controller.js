@@ -83,7 +83,7 @@ class ClientController extends BaseController {
 
   async getInfoByTKTT(req, res) {
     const {id} = req.params
-    let sql_1 = "CALL proc_viewTTTKRaUser(?);";
+    let sql_1 = "CALL proc_viewTTTKRaUser(?, @kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [id])
     console.log(result_1)
     let numberRow = { count: 0 }

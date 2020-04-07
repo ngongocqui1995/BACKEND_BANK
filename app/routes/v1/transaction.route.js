@@ -9,5 +9,8 @@ router.get('/', verifyAccessToken, trans.getAll)
 router.get('/:username', verifyAccessToken, trans.getOne)
 
 router.post('/internal', verifyAccessToken, trans.internalTrans)
+
+router.get('/otp/:username', verifyAccessToken, trans.sendOTP)
+
 // other routes
 module.exports = router
