@@ -26,6 +26,7 @@
     "nodemon": "^2.0.2",
     "parse-error": "^0.2.0",
     "ramda": "^0.27.0",
-    "rand-token": "^0.4.0"
+    "rand-token": "^0.4.0",
+    "socket.io": "^2.3.0"
   }
 }

@@ -14,6 +14,8 @@ const express = require('express')
 const app = express()
 const http = require('http')
 const https = require('https')
+const server = http.createServer(app);
+const io = require('socket.io')(server);
 const mongoose = require('mongoose')
 const createError = require('http-errors')
 const morgan = require('morgan')
@@ -23,7 +25,7 @@ const routes = require(global.APP_ROUTE_PATH)
 const jwt = require('jsonwebtoken')
 
 const { checkConnectDB } = require('./config/dev/db_mysql')
-
+app.set('socketio', io);
 app.use(cors())
 app.use(express.json());
 app.use(morgan('dev'));
@@ -52,7 +54,7 @@ app.use(function (err, req, res, next) {
 })
 
 const secureServer = https.createServer({}, app)
-const server = http.createServer(app)
+//const server = http.createServer(app)
 server.on('listening', onListening)
 server.on('error', onError)
 secureServer.on('listening', onListening)

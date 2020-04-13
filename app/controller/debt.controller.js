@@ -12,7 +12,7 @@ class DebtController extends BaseController {
     const {username} = req.params
     
     let sql_1 = "CALL proc_viewUserDSGiaoDichNo(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 10, 'ThoiGian','giam'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 100, 'ThoiGian','giam'])
     
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
@@ -43,8 +43,6 @@ class DebtController extends BaseController {
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, 'BBC', amount, 'Doi', note, payer, ''])
 
-    console.log(result_1)
-
     let { state, message } = getStateMessage(result_1[result_1.length - 1])
 
     if (err_1) return res.status(422).send({
@@ -56,6 +54,12 @@ class DebtController extends BaseController {
       success: false,
       message: message
     })
+
+    const io = req.app.get('socketio');
+    console.log(io)
+    io.emit('DEBT_NOTICE', {accountNumberA, accountNumberB, amount, note, payer});
+    
+    console.log(result_1.message)
 
     res.send({
       success: true,

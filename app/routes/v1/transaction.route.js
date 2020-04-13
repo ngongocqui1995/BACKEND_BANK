@@ -10,6 +10,8 @@ router.get('/:username', verifyAccessToken, trans.getOne)
 
 router.post('/internal', verifyAccessToken, trans.internalTrans)
 
+router.post('/bbc/external', verifyAccessToken, trans.externalTrans)
+
 router.get('/otp/:username', verifyAccessToken, trans.sendOTP)
 
 // other routes

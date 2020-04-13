@@ -21,6 +21,7 @@ class RecieverController extends BaseController {
       success: false,
       message: err_1
     })
+
     if (numberRow.count === 0) return res.status(422).send({
       success: false,
       message: "Lấy thông tin thất bại!!!"
@@ -42,14 +43,10 @@ class RecieverController extends BaseController {
     let sql_1 = "CALL proc_ThemBietDanh(?,?,?,?, @kq)";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [data.Username_IN, data.BietDanh_IN, Number(data.ID_TaiKhoan_TTTK_B_IN), data.TenNganHang_IN])
 
-    console.log(result_1)
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-
-    console.log("-Lấy thông tin user thành công!!!")
 
     res.send({
       success: true,

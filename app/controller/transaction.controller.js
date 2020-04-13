@@ -92,11 +92,18 @@ class TransactionController extends BaseController {
   }
 
   async externalTrans(req, res) {
-    let { accountNumberA, accountNumberB, bankConnect, amount, note, payer } = req.body
+    let { accountNumberA, accountNumberB, bankNameB, amount, note, payer, OTP_CODE, username } = req.body
+    const otp = await this.getOTP(username)
 
-    // chuyển tiền liên ngân hàng
+    if(otp != OTP_CODE) {
+      return res.status(422).send({
+        success: false,
+        message: "Mã xác nhận OTP không đúng!"
+      })
+    }
+    // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, bankConnect, amount, 'Gui', note, payer, ''])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, bankNameB, amount, 'Gui', note, payer, ''])
 
     console.log(result_1)
 
@@ -116,7 +123,7 @@ class TransactionController extends BaseController {
 
     res.send({
       success: true,
-      message: message
+      message: "Chuyển tiền thành công!"
     })
   }
 
