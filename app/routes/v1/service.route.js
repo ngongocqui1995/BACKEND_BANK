@@ -2,13 +2,15 @@ const router = require('express').Router()
 const ServiceController = require(`${global.APP_CONTROLLER_PATH}/service.controller`)
 
 const service = new ServiceController()
-const {generateOpenPGP, encryptOpenPGP, decryptOpenPGP} = require('../../middleware/auth.mware')
+const {generateOpenPGP, encryptOpenPGP, decryptOpenPGP, compareApiSignature, signRSA, verifyRSA, decryptRSA, encryptRSA} = require('../../middleware/auth.mware')
 
-router.post('/', generateOpenPGP, service.getInfo)
+router.post('/wallet', compareApiSignature, service.getInfo)
 
-router.post('/encrypt', encryptOpenPGP, service.getInfo)
+router.post('/wallet/topup', verifyRSA, service.topup)
 
-router.post('/test/decrypt', decryptOpenPGP, service.getInfo)
+router.post('/wallet/trans/cashout', verifyRSA, service.cashout)
+
+router.post('/test/pgp/rsa/sign', signRSA, service.getInfo)
 
 // other routes
 module.exports = router

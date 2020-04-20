@@ -1,6 +1,8 @@
 const createError = require('http-errors');
 const jwt = require('jsonwebtoken');
 const openpgp = require('openpgp');
+const NodeRSA = require('node-rsa');
+const sha512 = require('js-sha512').sha512;
 
 const public_key = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: OpenPGP.js v4.10.1
@@ -174,6 +176,30 @@ MjgAr3y9akp3SiEOAcSo8OR/l/Oad1DNcKkmveP5Gx7AnjP0E5uvYuuAk1Kx
 ljRGkfLSHUpjxee7K67ScLBmuRklR6T+O3sQIw==
 =9e+d
 -----END PGP PRIVATE KEY BLOCK-----`;
+
+const public_key_rsa = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDnjw0RWZG+xQgWeOSbg8LEDPi
+ZMZxYQTjm69ULobdBvBPaorigekmZlfRLOc2lCN+EHsThlhCGulZI7W7CtXTiqBH
+aqY6gOGpY+EtMMc5nAPNqaG/8k71oD23FRTpJTyREWlebVGj7LczQPtn6BzufaRd
+xpgV7g3f6a5cnbtWHwIDAQAB
+-----END PUBLIC KEY-----`
+
+const private_key_rsa = `-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQCDnjw0RWZG+xQgWeOSbg8LEDPiZMZxYQTjm69ULobdBvBPaori
+gekmZlfRLOc2lCN+EHsThlhCGulZI7W7CtXTiqBHaqY6gOGpY+EtMMc5nAPNqaG/
+8k71oD23FRTpJTyREWlebVGj7LczQPtn6BzufaRdxpgV7g3f6a5cnbtWHwIDAQAB
+AoGAaFp4D1WK3vJJJdE/LqUWRkZFbNVLxS8QCkowe8Ub5niO5dhqX2Zy7aAtNkqs
+00gmz9fPTU6yAU+G/cbjWnYfy5cr2rl5qyb3jEAD0dqYbxd7Sjq8G+1x+5DQ6SxU
+E7nDNqWzSODCuJGbXCh8oFtxfMm+CecRH5mljIg3pbndD4kCQQD0qkh45wGITsQC
+pQ0MAkBd48nP8ttKkCvqFa/2WbRCWAqT17t26zv3peIBHSZII2dE0e/yX6VGDiR+
+kdFyvdSTAkEAibc4LpNs5WKxACNAPVAtGO0Rl0nP8LxfrviE3Wft2RQvV1yzUvdY
+XMlRldOexmjDg8EN1dJQjLLwCFVxdR/bxQJBAOVPc/1dBaKrsCqKZ2AJ/CoDhPLR
+u5Z26bHMAc/y43AK9F78o0ch0mKZpulEWMzj4bYuzaVs34p5VtsJ8DSKluECQBtI
+H6oibIU4uuXTFevPkU+Jz11QMxB20OHBu9h8uUKy2/oLlD7QX0HqY+4xgRe/M1RL
+j2kXg/uLiz+rZZGVYR0CQEDkIX24AoTOJEYtBpPp1kd+6yCv4QByC33036RCRIQs
+QtJMuXUun+MEzMkXvlD+GLET0W6H8yqxkGzET9Dgv+0=
+-----END RSA PRIVATE KEY-----`
+
 const passphrase = "sangsang";
 
 module.exports.verifyAccessToken = (req, res, next) => {
@@ -271,3 +297,77 @@ module.exports.decryptOpenPGP = async (req, res, next) => {
   console.log(decrypted); // 'Hello, World!'
   res.send({ data: decrypted })
 }
+
+///////////////////////////// RSA /////////////////////////////////////////////////////////////
+module.exports.signRSA = (req, res, next) => {
+  const {rsa_signature} = req.body
+
+  const key = new NodeRSA();
+  key.importKey(private_key_rsa)
+
+  const sign = key.sign(JSON.stringify(rsa_signature), 'base64', 'utf8');
+  
+  console.log(sign)
+  res.send({data: sign})
+}
+
+module.exports.verifyRSA = (req, res, next) => {
+  const {rsa_message, rsa_signature} = req.body
+  const key = new NodeRSA();
+  console.log(rsa_message)
+  key.importKey(public_key_rsa)
+  const verify = key.verify(JSON.stringify(rsa_message), rsa_signature, 'utf8', 'base64');
+
+  if(verify) {
+    console.log("EXACTLY")
+    next()
+  } else {
+    throw createError(410, {
+      result_code: 2,
+      message: 'VERIFY_RSA_FAILURE'
+    })
+  }
+}
+
+module.exports.encryptRSA = (req, res, next) => {
+  const {rsa_signature} = req.body
+
+  const key = new NodeRSA();
+  key.importKey(private_key_rsa)
+  
+  const encryptData = key.encryptPrivate(rsa_signature, 'base64', 'utf8');
+  console.log(encryptData)
+  res.send({data: encryptData})
+}
+
+module.exports.decryptRSA = (req, res, next) => {
+  const {rsa_signature} = req.body
+
+  const key = new NodeRSA();
+  key.importKey(public_key_rsa)
+  
+  const decryptData = key.decryptPublic(rsa_signature, 'utf8');
+  console.log(decryptData)
+  res.send({data: decryptData})
+}
+
+module.exports.compareApiSignature = (req, res, next) => {
+  const agentSecretKey = "SANGSANG"
+  const body = JSON.stringify(req.body)
+  const agent_code = req.headers.agent_code
+  const ts = req.headers.ts
+  const clientSig = req.headers.api_signature
+     
+  const joinData = [ts, body, agentSecretKey].join("|")
+  const serverSig = sha512(joinData)
+  
+  if(clientSig === serverSig) {
+    next()
+  } else {
+    throw createError(410, {
+      result_code: 1,
+      message: 'COMPARE_SIGNATURE_FAILURE'
+    })
+  }
+}
+
