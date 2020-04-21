@@ -6,6 +6,7 @@ const {verifyAccessToken} = require('../../middleware/auth.mware')
 
 router.post('/', verifyAccessToken, debt.create)
 router.get('/:username', verifyAccessToken, debt.getOneByUser)
+router.delete('/:id', verifyAccessToken, debt.removeDebt)
 
 // other routes
 module.exports = router

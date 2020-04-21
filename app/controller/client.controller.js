@@ -2,7 +2,7 @@ const BaseController = require('./base.controller')
 const { queryDB } = require('../../config/dev/db_mysql')
 const { getRowsPagination, isEmpty, getStateMessage } = require('../validator/validator')
 const mongoose = require('mongoose')
-
+const md5 = require('md5')
 class ClientController extends BaseController {
   constructor() {
     super(mongoose)
@@ -11,7 +11,7 @@ class ClientController extends BaseController {
 
   async getAll(req, res) {
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'KH', '', 1, 10, 'ID_TaiKhoan', 'giam'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'KH', '', 1, 1000, 'ID_TaiKhoan', 'giam'])
 
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])

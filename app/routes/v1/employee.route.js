@@ -6,5 +6,7 @@ const {verifyAccessToken} = require('../../middleware/auth.mware')
 
 router.get('/', verifyAccessToken, employee.getAll)
 
+router.post('/topup', verifyAccessToken, employee.topup)
+
 // other routes
 module.exports = router

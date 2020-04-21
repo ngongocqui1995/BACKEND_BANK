@@ -11,7 +11,7 @@ class TransactionController extends BaseController {
 
   async getAll(req, res) {
     let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 10, 'ThoiGian', 'giam'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam'])
 
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
@@ -56,7 +56,7 @@ class TransactionController extends BaseController {
   }
 
   async internalTrans(req, res) {
-    let { accountNumberA, accountNumberB, amount, note, payer, OTP_CODE, username } = req.body
+    let { accountNumberA, accountNumberB, amount, note, payer, OTP_CODE, username, transType, ID_TraNo } = req.body
     const otp = await this.getOTP(username)
 
     if(otp != OTP_CODE) {
@@ -67,7 +67,7 @@ class TransactionController extends BaseController {
     }
     // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, 'BBC', amount, 'Gui', note, payer, ''])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, 'BBC', amount, transType, note, payer, ID_TraNo ||''])
 
     console.log(result_1)
 
@@ -159,6 +159,7 @@ class TransactionController extends BaseController {
   }
 
   async createOTP(username, code) {
+    console.log(code)
     let sql_1 = "CALL proc_TaoOTP(?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, code])
 

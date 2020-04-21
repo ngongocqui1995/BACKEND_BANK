@@ -37,7 +37,7 @@ class DebtController extends BaseController {
   }
 
   async create(req, res) {
-    let { accountNumberA, accountNumberB, amount, note, payer} = req.body
+    let { username, accountNumberA, accountNumberB, amount, note, payer} = req.body
  
     // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
@@ -57,13 +57,40 @@ class DebtController extends BaseController {
 
     const io = req.app.get('socketio');
     console.log(io)
-    io.emit('DEBT_NOTICE', {accountNumberA, accountNumberB, amount, note, payer});
+    io.emit('DEBT_NOTICE', {username, accountNumberA, accountNumberB, amount, note, payer});
     
     console.log(result_1.message)
 
     res.send({
       success: true,
       message: message
+    })
+  }
+
+  async removeDebt(req, res) {
+    const {id} = req.params
+    
+    let sql_1 = "CALL proc_XoaDoi(?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [id])
+    
+    let numberRow = { count: 0 }
+    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
+
+    if (err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+
+    if (numberRow.count === 0) return res.status(422).send({
+      success: false,
+      message: "Lấy thông tin thất bại!!!"
+    })
+
+    console.log("-Lấy thông tin user thành công!!!")
+    
+    res.send({
+      success: true,
+      message: "Xóa thành công!!!"
     })
   }
 }
