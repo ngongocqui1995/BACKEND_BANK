@@ -10,8 +10,9 @@ class TransactionController extends BaseController {
   }
 
   async getAll(req, res) {
-    let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam'])
+    const {bankName} = req.query
+    let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankName || '', 'BBC'])
 
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])

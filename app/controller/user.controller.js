@@ -125,9 +125,6 @@ class UserController extends BaseController {
     })
   }
 
-  
-
-
   async info(req, res) {
     const { username } = req.params
 
