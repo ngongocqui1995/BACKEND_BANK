@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const openpgp = require('openpgp');
 const NodeRSA = require('node-rsa');
 const sha512 = require('js-sha512').sha512;
+const { queryDB } = require('../../config/dev/db_mysql')
 
 const public_key = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: OpenPGP.js v4.10.1
@@ -351,7 +352,9 @@ module.exports.decryptRSA = (req, res, next) => {
   res.send({data: decryptData})
 }
 
-module.exports.compareApiSignature = (req, res, next) => {
+module.exports.compareApiSignature = async (req, res, next) => {
+  const connector = await getBankByAgentCode("AAA")
+  console.log(connector.Key_Auth)
   const agentSecretKey = "SANGSANG"
   const body = JSON.stringify(req.body)
   const agent_code = req.headers.agent_code
@@ -371,3 +374,17 @@ module.exports.compareApiSignature = (req, res, next) => {
   }
 }
 
+
+const getBankByAgentCode = async (agent_code) => {
+  // kiểm tra ngan hàng đó có liên kết hay chưa
+  console.log(agent_code)
+  let sql_1 = "CALL proc_viewKeyNH(?);";
+  let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [agent_code])
+
+  if (err_1) return res.status(422).send({
+    success: false,
+    message: err_1
+  })
+
+  return result_1[0][0]
+}

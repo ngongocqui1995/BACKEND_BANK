@@ -16,24 +16,31 @@ class ServiceController extends BaseController {
         let sql_1 = "CALL proc_viewTTTKRaUser(?, @kq); select @kq as `message`;";
         let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [data.account_number])
 
-        let numberRow = { count: 0 }
-        if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
         if (err_1) return res.status(422).send({
             success: false,
             message: err_1
         })
 
-        if (numberRow.count === 0) return res.status(422).send({
-            success: false,
-            message: "Lấy thông tin thất bại!!!"
-        })
+        const result = result_1[0].fieldCount
+        if (result === 0) {
+            const message = result_1[1][0].message
+            console.log(message)
+            const split = message.split(':')
+            return res.status(422).send({
+                success: false,
+                ref_time: moment().valueOf(),
+                result_code: +split[0],
+                message: split[1]
+            })
+        }
 
-        console.log("-Lấy thông tin user thành công!!!")
+        console.log(result_1[0].fieldCount)
 
         res.send({
             data: result_1[0][0],
             success: true,
+            ref_time: moment().valueOf(),
+            result_code: 0,
             message: "Lấy thông tin thành công!"
         })
     }

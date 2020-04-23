@@ -9,7 +9,8 @@ let config = {
     multipleStatements: true,
     connectionLimit: 1000,
     waitForConnections: true,
-    queueLimit: 0
+    queueLimit: 0,
+    connectTimeout: 25000
 }
 
 const pool = mysql.createPool(config);
