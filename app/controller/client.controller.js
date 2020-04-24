@@ -13,23 +13,26 @@ class ClientController extends BaseController {
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'KH', '', 1, 1000, 'ID_TaiKhoan', 'giam'])
 
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if (numberRow.count === 0) return res.status(422).send({
-      success: false,
-      message: "Lấy thông tin thất bại!!!"
-    })
 
-    console.log("-Lấy thông tin user thành công!!!")
+    const message = result_1[1][0].message
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
 
     res.send({
       data: result_1[0],
       success: true,
+      result_code: 0,
       message: "Lấy thông tin user thành công!!!"
     })
   }
@@ -41,69 +44,81 @@ class ClientController extends BaseController {
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
 
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
 
-    if (numberRow.count === 1) return res.status(402).send({
-      success: false,
-      message: "User này đã tồn tại trong hệ thống!"
-    })
-
-    console.log("-Kiểm tra user thành công!!!")
+    const message = result_1[1][0].message
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
 
     // đăng kí tài khoản
     let hashpass = md5(password)
     let sql_2 = "CALL proc_DangKy(?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_2, [result_2, fields_2]] = await queryDB(sql_2, [username, hashpass, name, gmail, sdt])
 
-    let { state, message } = getStateMessage(result_2[result_2.length - 1])
 
     if (err_2) return res.status(422).send({
       success: false,
       message: err_2
     })
 
-    if (!state) return res.status(422).send({
-      success: false,
-      message: message
-    })
+    const message2 = result_2[1][0].message
+    const split2 = message2.split(':')
+    console.log(split2)
+    if (split2[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split2[0],
+        message: split2[1]
+      })
+    }
 
     console.log("-Đăng ký user thành công!!!")
 
     res.send({
       success: true,
-      message: message
+      result_code: 0,
+      message: split[0]
     })
   }
 
   async getInfoByTKTT(req, res) {
-    const {id} = req.params
+    const { id } = req.params
     let sql_1 = "CALL proc_viewTTTKRaUser(?, @kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [id])
-    console.log(result_1)
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
 
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if (numberRow.count === 0) return res.status(422).send({
-      success: false,
-      message: "Lấy thông tin thất bại!!!"
-    })
 
-    console.log("-Lấy thông tin user thành công!!!")
+    const result = result_1[0].fieldCount
+
+    if (result === 0) {
+      const message = result_1[1][0].message
+      console.log(message)
+      const split = message.split(':')
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
 
     res.send({
       data: result_1[0],
       success: true,
-      message: "Lấy thông tin user thành công!!!"
+      result_code: 0,
+      message: "Lấy thông tin user thành công!"
     })
   }
 }

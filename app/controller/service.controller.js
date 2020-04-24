@@ -60,6 +60,17 @@ class ServiceController extends BaseController {
             message: err_1
         })
 
+        const message = result_1[1][0].message
+        const split = message.split(':')
+        console.log(split)
+        if (split[0] != 0) {
+        return res.status(422).send({
+            success: false,
+            ref_time: moment().format("YYYYMMDDHHmmss").valueOf(),
+            result_code: +split[0],
+            message: split[1]
+        })
+        }
 
         console.log("-Nạp tiền thành công!!!")
 
@@ -79,15 +90,24 @@ class ServiceController extends BaseController {
         let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
         let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [account_number_A, 'BBC', account_number_B, bank_name, request_amount, 'Gui', '', 'B', ''])
 
-        console.log(result_1)
-
         if (err_1) return res.status(422).send({
             success: false,
             message: err_1
         })
 
-        console.log("-Nạp tiền thành công!!!")
+        const message = result_1[1][0].message
+        const split = message.split(':')
+        console.log(split)
+        if (split[0] != 0) {
+        return res.status(422).send({
+            success: false,
+            ref_time: moment().format("YYYYMMDDHHmmss").valueOf(),
+            result_code: +split[0],
+            message: split[1]
+        })
+        }
 
+        console.log("-Nạp tiền thành công!!!")
         res.send({
             transactionAmount: request_amount,
             ref_time: moment().format("YYYYMMDDHHmmss").valueOf(),

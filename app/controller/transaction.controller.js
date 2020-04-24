@@ -14,25 +14,27 @@ class TransactionController extends BaseController {
     let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankName || '', 'BBC'])
 
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
 
-    if (numberRow.count === 0) return res.status(422).send({
-      success: false,
-      message: "Lấy thông tin thất bại!!!"
-    })
+    const message = result_1[1][0].message
+    const split = message.split(':')
 
-    console.log("-Lấy thông tin user thành công!!!")
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
 
     res.send({
       data: result_1[0],
       success: true,
-      message: "Lấy thông tin user thành công!!!"
+      result_code: 0,
+      message: split[1]
     })
   }
 
@@ -47,12 +49,23 @@ class TransactionController extends BaseController {
       message: err_1
     })
 
+    const message = result_1[1][0].message
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
+
     console.log("-Lấy danh sách giao dịch thành công!!!")
 
     res.send({
       data: result_1 ? result_1[0] ? result_1[0] : [] : [],
       success: true,
-      message: "Lấy danh sách giao dịch thành công!!!"
+      message: "Lấy danh sách giao dịch thành công!"
     })
   }
 
@@ -70,19 +83,21 @@ class TransactionController extends BaseController {
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, 'BBC', amount, transType, note, payer, ID_TraNo ||''])
 
-    console.log(result_1)
-
-    let { state, message } = getStateMessage(result_1[result_1.length - 1])
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
 
-    if (!state) return res.status(422).send({
-      success: false,
-      message: message
-    })
+    const message = result_1[1][0].message
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
 
     console.log("-Chuyển tiền nội bộ thành công!!!")
 
