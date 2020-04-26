@@ -14,20 +14,21 @@ class DebtController extends BaseController {
     let sql_1 = "CALL proc_viewUserDSGiaoDichNo(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 100, 'ThoiGian','giam'])
     
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
 
-    if (numberRow.count === 0) return res.status(422).send({
-      success: false,
-      message: "Lấy thông tin thất bại!!!"
-    })
-
-    console.log("-Lấy thông tin user thành công!!!")
+    const message1 = result_1[1][0] && result_1[1][0].message || ''
+    const split1 = message1.split(':')
+    console.log(split1)
+    if (split1[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split1[0],
+        message: split1[1]
+      })
+    }
     
     res.send({
       data: result_1[0],
@@ -37,7 +38,26 @@ class DebtController extends BaseController {
   }
 
   async create(req, res) {
-    let { username, accountNumberA, accountNumberB, amount, note, payer} = req.body
+    let {accountNumberA, accountNumberB, amount, note, payer} = req.body
+
+    let sql = "CALL proc_viewTTTKRaUser(?, @kq); select @kq as `message`;";
+    let [err, [result, fields]] = await queryDB(sql, [accountNumberB])
+
+    if (err) return res.status(422).send({
+      success: false,
+      message: err
+    })
+
+    const message = result[1][0] && result[1][0].message || ''
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
  
     // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
@@ -48,24 +68,25 @@ class DebtController extends BaseController {
       message: err_1
     })
 
-    const message = result_1[1][0].message
-    const split = message.split(':')
-    console.log(split)
-    if (split[0] != 0) {
+    const message1 = result_1[1][0] && result_1[1][0].message || ''
+    const split1 = message1.split(':')
+    console.log(split1)
+    if (split1[0] != 0) {
       return res.status(422).send({
         success: false,
-        result_code: +split[0],
-        message: split[1]
+        result_code: +split1[0],
+        message: split1[1]
       })
     }
 
+    const username = result[0][0].Username
     const io = req.app.get('socketio');
     io.emit('DEBT_NOTICE', {username, accountNumberA, accountNumberB, amount, note, payer});
     
     res.send({
       success: true,
       result_code: 0,
-      message: split[1]
+      message: split1[1]
     })
   }
 
@@ -82,7 +103,7 @@ class DebtController extends BaseController {
       message: err_1
     })
 
-    const message = result_1[1][0].message
+    const message = result_1[1][0] && result_1[1][0].message || ''
     const split = message.split(':')
     console.log(split)
     if (split[0] != 0) {

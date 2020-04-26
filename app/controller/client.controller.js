@@ -8,7 +8,6 @@ class ClientController extends BaseController {
     super(mongoose)
   }
 
-
   async getAll(req, res) {
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 'KH', '', 1, 1000, 'ID_TaiKhoan', 'giam'])
@@ -18,16 +17,16 @@ class ClientController extends BaseController {
       message: err_1
     })
 
-    const message = result_1[1][0].message
-    const split = message.split(':')
-    console.log(split)
-    if (split[0] != 0) {
-      return res.status(422).send({
-        success: false,
-        result_code: +split[0],
-        message: split[1]
-      })
-    }
+    // const message = result_1[1][0].message
+    // const split = message.split(':')
+    // console.log(split)
+    // if (split[0] != 0) {
+    //   return res.status(422).send({
+    //     success: false,
+    //     result_code: +split[0],
+    //     message: split[1]
+    //   })
+    // }
 
     res.send({
       data: result_1[0],
@@ -49,7 +48,7 @@ class ClientController extends BaseController {
       message: err_1
     })
 
-    const message = result_1[1][0].message
+    const message = result_1[1][0] && result_1[1][0].message || ''
     const split = message.split(':')
     console.log(split)
     if (split[0] != 0) {
@@ -65,13 +64,12 @@ class ClientController extends BaseController {
     let sql_2 = "CALL proc_DangKy(?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_2, [result_2, fields_2]] = await queryDB(sql_2, [username, hashpass, name, gmail, sdt])
 
-
     if (err_2) return res.status(422).send({
       success: false,
       message: err_2
     })
 
-    const message2 = result_2[1][0].message
+    const message2 = result_2[1][0] && result_2[1][0].message || ''
     const split2 = message2.split(':')
     console.log(split2)
     if (split2[0] != 0) {
@@ -101,12 +99,10 @@ class ClientController extends BaseController {
       message: err_1
     })
 
-    const result = result_1[0].fieldCount
-
-    if (result === 0) {
-      const message = result_1[1][0].message
-      console.log(message)
-      const split = message.split(':')
+    const message = result_1[1][0] && result_1[1][0].message || ''
+    const split = message.split(':')
+    
+    if (split[0] != 0) {
       return res.status(422).send({
         success: false,
         result_code: +split[0],

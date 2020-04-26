@@ -132,19 +132,22 @@ class UserController extends BaseController {
     let sql_1 = "CALL proc_viewUser(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1, 'ID_TaiKhoan', 'tang'])
 
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if (numberRow.count === 0) return res.status(422).send({
-      success: false,
-      message: "Lấy thông tin thất bại!!!"
-    })
 
-    console.log("-Lấy thông tin user thành công!!!")
+    const message = result_1[1][0] && result_1[1][0].message || ''
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
+
 
     let userInfo = result_1[0] ? result_1[0][0] : {}
 
@@ -166,7 +169,16 @@ class UserController extends BaseController {
       message: err_1
     })
 
-    console.log("-Lấy user thành công!!!")
+    const message = result_1[1][0] && result_1[1][0].message || ''
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
 
     res.send({
       user: result_1 ? result_1[0] ? result_1[0] : [] : [],

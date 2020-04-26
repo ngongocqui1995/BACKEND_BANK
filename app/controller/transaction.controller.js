@@ -10,31 +10,28 @@ class TransactionController extends BaseController {
   }
 
   async getAll(req, res) {
-    const {bankName} = req.query
+    const {bankA, bankB} = req.query
+    let bankNameA = ''
+    if(!bankA) {
+      bankNameA = bankA
+    }
+    let bankNameB = ''
+    if(!bankB) {
+      bankNameB = bankB
+    }
     let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankName || '', 'BBC'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankNameA, bankNameB])
 
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
 
-    const message = result_1[1][0].message
-    const split = message.split(':')
-
-    if (split[0] != 0) {
-      return res.status(422).send({
-        success: false,
-        result_code: +split[0],
-        message: split[1]
-      })
-    }
-
     res.send({
       data: result_1[0],
       success: true,
       result_code: 0,
-      message: split[1]
+      message: 'Lấy giao dịch thành công!'
     })
   }
 
@@ -42,25 +39,12 @@ class TransactionController extends BaseController {
     // lấy danh sách giao dịch
     const { username } = req.params
     let sql_1 = "CALL proc_viewUserDSGiaoDichNo(?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 10000, 'ThoiGian', 'giam'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, '', '', 1, 1000, 'ThoiGian', 'giam'])
 
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-
-    const message = result_1[1][0].message
-    const split = message.split(':')
-    console.log(split)
-    if (split[0] != 0) {
-      return res.status(422).send({
-        success: false,
-        result_code: +split[0],
-        message: split[1]
-      })
-    }
-
-    console.log("-Lấy danh sách giao dịch thành công!!!")
 
     res.send({
       data: result_1 ? result_1[0] ? result_1[0] : [] : [],
@@ -73,6 +57,13 @@ class TransactionController extends BaseController {
     let { accountNumberA, accountNumberB, amount, note, payer, OTP_CODE, username, transType, ID_TraNo } = req.body
     const otp = await this.getOTP(username)
 
+    if(otp.length > 6) {
+      return res.status(422).send({
+        success: false,
+        message: "Mã OTP đã hết thời gian!"
+      })
+    }
+
     if(otp != OTP_CODE) {
       return res.status(422).send({
         success: false,
@@ -80,17 +71,19 @@ class TransactionController extends BaseController {
       })
     }
     // chuyển tiền nội bộ
+    const idTraNo = req.body.ID_TraNo || ''
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, 'BBC', amount, transType, note, payer, ID_TraNo ||''])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, 'BBC', amount, transType, note, payer, idTraNo])
 
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
+    console.log(result_1)
 
-    const message = result_1[1][0].message
+    const message = result_1[1][0] && result_1[1][0].message || ''
     const split = message.split(':')
-    console.log(split)
+
     if (split[0] != 0) {
       return res.status(422).send({
         success: false,
@@ -117,6 +110,7 @@ class TransactionController extends BaseController {
         message: "Mã xác nhận OTP không đúng!"
       })
     }
+
     // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo(?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [accountNumberA, 'BBC', accountNumberB, bankNameB, amount, 'Gui', note, payer, ''])
@@ -146,7 +140,7 @@ class TransactionController extends BaseController {
   async getOTP(username) {
     console.log(username)
     let sql_1 = "CALL proc_viewOTP(?);";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['nguyensang280596@gmail.com'])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username])
 
     console.log("GET OTP==", result_1[0])
 

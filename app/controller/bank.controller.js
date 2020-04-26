@@ -14,23 +14,27 @@ class BankController extends BaseController {
     let sql_1 = "CALL proc_viewNH(?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 1, 100, 'ID_NganHangLienKet', 'giam'])
 
-    let numberRow = { count: 0 }
-    if (result_1.length > 0) numberRow = getRowsPagination(result_1[result_1.length - 1])
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
-    if (numberRow.count === 0) return res.status(422).send({
-      success: false,
-      message: "Lấy thông tin thất bại!!!"
-    })
 
-    console.log("-Lấy thông tin user thành công!!!")
+    // const message = result_1[1][0].message
+    // const split = message.split(':')
+    // console.log(split)
+    // if (split[0] != 0) {
+    //   return res.status(422).send({
+    //     success: false,
+    //     result_code: +split[0],
+    //     message: split[1]
+    //   })
+    // }
+   
 
     res.send({
       data: result_1[0],
       success: true,
+      result_code: 0,
       message: "Lấy danh sách ngân hàng thành công!!!"
     })
   }
@@ -42,17 +46,25 @@ class BankController extends BaseController {
     let sql_1 = "CALL proc_ThemBietDanh(?,?,?,?, @kq)";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [data.Username_IN, data.BietDanh_IN, Number(data.ID_TaiKhoan_TTTK_B_IN), data.TenNganHang_IN])
 
-    console.log(result_1)
-
     if (err_1) return res.status(422).send({
       success: false,
       message: err_1
     })
 
-    console.log("-Lấy thông tin user thành công!!!")
+    const message1 = result[1][0] && result[1][0].message || ''
+    const split = message.split(':')
+    console.log(split)
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
 
     res.send({
       success: true,
+      result_code: 0,
       message: "Tạo biệt danh thành công!!!"
     })
   }
