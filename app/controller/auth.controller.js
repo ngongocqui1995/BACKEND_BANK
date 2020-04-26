@@ -6,6 +6,7 @@ const { queryDB } = require('../../config/dev/db_mysql')
 const md5 = require('md5')
 const to = require('await-to-js').default
 const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer');
 
 class AuthController extends BaseController {
   constructor() {
@@ -154,10 +155,51 @@ class AuthController extends BaseController {
   }
 
   async changePass(req, res) {
-    const { username, password } = req.body
+    const { username, password, oldPassword } = req.body
     console.log("DATA= ", username + password)
     let hashPassword = md5(password)
-    let sql = "CALL proc_DoiPassTaiKhoan(?,?,@kq); select @kq as `message`;";
+    let hashOldPassword = md5(oldPassword)
+    let sql = "CALL proc_DoiPassTaiKhoan(?,?,?,@kq); select @kq as `message`;";
+    let [err, [result, fields]] = await queryDB(sql, [username, hashPassword, hashOldPassword])
+
+    let { state, message } = getStateMessage(result[result.length - 1])
+
+    if(err) return res.status(422).send({
+      success: false,
+      message: err
+    })
+
+    if (!state) return res.status(422).send({
+      success: false,
+      message: message
+    })
+
+    return res.send({
+      success: true,
+      message: 'Đổi mật khẩu thành công!'
+    })
+  }
+
+  async resetPassword(req, res) {
+    const { username, newPassword, OTP } = req.body
+    const otp = await this.getOTP(username)
+
+    if(otp.length > 6) {
+      return res.status(422).send({
+        success: false,
+        message: "Mã OTP đã hết thời gian!"
+      })
+    }
+
+    if(otp != OTP) {
+      return res.status(422).send({
+        success: false,
+        message: "Mã xác nhận OTP không đúng!"
+      })
+    }
+
+    let hashPassword = md5(newPassword)
+    let sql = "CALL proc_ResetPassTaiKhoan(?,?,@kq); select @kq as `message`;";
     let [err, [result, fields]] = await queryDB(sql, [username, hashPassword])
 
     let { state, message } = getStateMessage(result[result.length - 1])
@@ -176,6 +218,81 @@ class AuthController extends BaseController {
       success: true,
       message: 'Đổi mật khẩu thành công!'
     })
+  }
+
+  async getOTP(username) {
+    console.log(username)
+    let sql_1 = "CALL proc_viewOTP(?);";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username])
+
+    console.log("GET OTP==", result_1[0])
+
+    if (err_1) {
+      console.log(err_1)
+      return false
+    }
+
+    return result_1[0][0].ID_OTP
+  }
+ 
+  async sendOTP(req, res){
+    const {username} = req.params
+    const code = this.randomRange(100000, 999999) // random code
+
+    const mainOptions = { // thiết lập đối tượng, nội dung gửi mail
+      from: 'Thanh Batmon',
+      to: username,
+      subject: 'OTP Ngân hàng',
+      text: 'Mã OTP để xác nhận là: ' + code,
+    }
+    const sendMail = this.sendMail(code, mainOptions)
+    const OTP = this.createOTP(username, code) // save code in database
+    Promise.all([sendMail, OTP]).then(values => { 
+      res.send({
+        success: true
+      })
+    }, reason => {
+      res.send({
+        success: false
+      })
+    });
+  }
+
+  async createOTP(username, code) {
+    console.log(code)
+    let sql_1 = "CALL proc_TaoOTP(?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [username, code])
+
+    console.log(result_1)
+
+    if (err_1) {
+      console.log(err_1)
+      return false
+    }
+
+    return true
+  }
+
+  sendMail(code, mainOptions) {
+    const transporter = nodemailer.createTransport({ // config mail server
+      service: 'Gmail',
+      auth: {
+        user: 'daochichteam@gmail.com',
+        pass: 'maianhtuan'
+      }
+    });
+
+    transporter.sendMail(mainOptions, function (err, info) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('Message sent: ' + info.response);
+      }
+    });
+  }
+
+  randomRange(min, max) {
+    return Math.floor((Math.random() * (max - min + 1)) + min)
   }
 }
 

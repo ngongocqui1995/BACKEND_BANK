@@ -10,5 +10,8 @@ router.get('/getNewToken', verifyRefreshToken, auth.getNewToken)
 
 router.post('/change/password', auth.changePass)
 
+router.get('/service/otp/:username', auth.sendOTP)
+
+router.put('/reset', auth.resetPassword)
 // other routes
 module.exports = router
