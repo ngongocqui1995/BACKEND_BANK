@@ -16,6 +16,6 @@ router.use('/trans', require(`${ROUTE_V1_PATH}/transaction.route`))
 router.use('/debt', require(`${ROUTE_V1_PATH}/debt.route`))
 router.use('/reciever', require(`${ROUTE_V1_PATH}/reciever.route`))
 router.use('/bank', require(`${ROUTE_V1_PATH}/bank.route`))
-router.use('/service', require(`${ROUTE_V1_PATH}/service.route`))
+router.use('/bbc', require(`${ROUTE_V1_PATH}/service.route`))
 
 module.exports = router

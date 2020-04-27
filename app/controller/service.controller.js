@@ -14,7 +14,7 @@ class ServiceController extends BaseController {
     console.log(data)
     // lấy thông tin user
     let sql_1 = "CALL proc_viewTTTKRaUser(?, @kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [data.account_number])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [data.SoTK])
 
     if (err_1) return res.status(422).send({
       success: false,
@@ -23,23 +23,25 @@ class ServiceController extends BaseController {
 
     const message = result_1[1][0] && result_1[1][0].message || ''
     const split = message.split(':')
-    console.log(split)
+
+    console.log(result_1)
+
     if (split[0] != 0) {
       return res.status(422).send({
-        success: false,
-        ref_time: moment().valueOf(),
         result_code: +split[0],
-        message: split[1]
+        result_message: split[1],
+        timestamp: moment().valueOf(),
       })
     }
 
-
     res.send({
-      data: result_1[0][0],
-      success: true,
-      ref_time: moment().valueOf(),
-      result_code: 0,
-      message: split[1]
+      TenKH: result_1[0][0].HoTen,
+      SoDienThoai: result_1[0][0].DienThoai,
+      SoDu: result_1[0][0].SoDu,
+      TrangThaiTK: result_1[0][0].TinhTrang,
+      result_code: 600,
+      result_message: "Truy xuất thông tin thành công!",
+      timestamp: moment().valueOf()
     })
   }
 

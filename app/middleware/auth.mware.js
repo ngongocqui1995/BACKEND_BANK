@@ -4,6 +4,7 @@ const openpgp = require('openpgp');
 const NodeRSA = require('node-rsa');
 const sha512 = require('js-sha512').sha512;
 const { queryDB } = require('../../config/dev/db_mysql')
+const moment = require('moment')
 
 const public_key = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: OpenPGP.js v4.10.1
@@ -353,31 +354,55 @@ module.exports.decryptRSA = (req, res, next) => {
 }
 
 module.exports.compareApiSignature = async (req, res, next) => {
-  const connector = await getBankByAgentCode("AAA")
-  console.log(connector.Key_Auth)
-  const agentSecretKey = "SANGSANG"
+  //  kiểm tra agent code (là tên ngan hàng)
+  const agent_code_client = req.headers.agent_code
+  const check_agent_code = await getBankByAgentCode(agent_code_client)
+  console.log(check_agent_code)
+
+  if(!check_agent_code) {
+    res.status(406).json({
+      result_code: 1,
+      message_code: "INVALID_AGENT_CODE",
+      message_text: 'Trường agent_code không hợp lệ!'
+    })
+  }
+
+  const url = 'api/v1/bbc/truyvanthongtin'
+  const agentSecretKey = check_agent_code.Key_Auth
   const body = JSON.stringify(req.body)
-  const agent_code = req.headers.agent_code
   const ts = req.headers.ts
+  // kiểm tra thời gian request
+  const currDate = moment().valueOf()
+
+  if(currDate - ts > 1800000) {
+    res.status(406).json({
+      result_code: 1,
+      message_code: "REQUEST_TIMOUT",
+      message_text: "Yêu cầu đã quá hạn cho phép!"
+    })
+  }
+
+  // kiễm tra gói tin có chỉnh sửa chưa
   const clientSig = req.headers.api_signature
-     
-  const joinData = [ts, body, agentSecretKey].join("|")
+  const joinData = [url, ts, body, agentSecretKey].join("|")
   const serverSig = sha512(joinData)
   
   if(clientSig === serverSig) {
     next()
   } else {
-    throw createError(410, {
+    res.status(406).json({
       result_code: 1,
-      message: 'COMPARE_SIGNATURE_FAILURE'
+      message_code: "INVALID_SIGNATURE",
+      message_text: "Trường api_signature không hợp lệ!"
     })
   }
 }
 
-
+/**
+ * kiểm tra ngan hàng đó có liên kết hay chưa
+ *  */ 
 const getBankByAgentCode = async (agent_code) => {
-  // kiểm tra ngan hàng đó có liên kết hay chưa
-  console.log(agent_code)
+  
   let sql_1 = "CALL proc_viewKeyNH(?);";
   let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [agent_code])
 
