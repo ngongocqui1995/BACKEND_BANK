@@ -180,26 +180,70 @@ ljRGkfLSHUpjxee7K67ScLBmuRklR6T+O3sQIw==
 -----END PGP PRIVATE KEY BLOCK-----`;
 
 const public_key_rsa = `-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDnjw0RWZG+xQgWeOSbg8LEDPi
-ZMZxYQTjm69ULobdBvBPaorigekmZlfRLOc2lCN+EHsThlhCGulZI7W7CtXTiqBH
-aqY6gOGpY+EtMMc5nAPNqaG/8k71oD23FRTpJTyREWlebVGj7LczQPtn6BzufaRd
-xpgV7g3f6a5cnbtWHwIDAQAB
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA39+Q3k9fD1sjdDxwMsEr
+3uWNgSgjB3llMS109saYiv7eC1KB0fUZe7jF1PxHNtcmstjjTs90pi60ffKGLkOF
+u0ohWcY/3LNhHL8zBack3kP/UqJcRmFKx/kQV4DzlbdhdF6niqbTnPzUwLtkeZVq
+ruPIy7lDSDpoq9U7FfvuhzgZLlK5+VxeomVwGcSkRMennNuV84jMQgsftGnAkRLd
+OitUFaImaYRjdVHAe+j+0Oh+zCQywvR1eh68gFmUnz0Q6YLmFxeQTHDO1PXODl/z
+x/5W+LwyTwy7J0vi4WLKhsoa4FBQxnpQworvZYOmG2JoNXpzMJulowHy252HZNge
+RL8RSMO1oOhpomRjvzgj72NqIZo44yEpS/D5d/raazLuvPPdqntUPl5XvzzouFME
+SvY82pFvGtpwUUFpjkPgBoOYt8HoWs6W7a6A3tNy2n4IaSTQ74fNofyFzVAPJHT+
+x4zcMOPgg0IoZ9Vfm4K2jsXj8M6uhWDvRyt0ZRMV6YITzP/xLGx+oedJqPjHK0Mq
+0JtHfKRq1m9H0woZ0D6UXJEcgMSA0BrSlDeWqwr4/sGjPLTJI0DXyBgnIVEjymPc
+SGN68s+8GzBKazvrcCHwIVwDjHMxy1QIrNY5ec/CpvwkbKRCxaZRk+Pxg3kQDQvt
+Sz+EqR83KGyJwqtHDCYUiHECAwEAAQ==
 -----END PUBLIC KEY-----`
 
 const private_key_rsa = `-----BEGIN RSA PRIVATE KEY-----
-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
+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
 -----END RSA PRIVATE KEY-----`
 
 const passphrase = "sangsang";
@@ -313,22 +357,17 @@ module.exports.signRSA = (req, res, next) => {
   res.send({data: sign})
 }
 
-module.exports.verifyRSA = (req, res, next) => {
-  const {rsa_message, rsa_signature} = req.body
+const verifyRSA = (rsa_message, rsa_signature, Pub_Key) => {
   const key = new NodeRSA();
   console.log(rsa_message)
-  key.importKey(public_key_rsa)
+  key.importKey(Pub_Key)
   const verify = key.verify(JSON.stringify(rsa_message), rsa_signature, 'utf8', 'base64');
 
   if(verify) {
-    console.log("EXACTLY")
-    next()
-  } else {
-    throw createError(410, {
-      result_code: 2,
-      message: 'VERIFY_RSA_FAILURE'
-    })
+    return true
   }
+
+  return false
 }
 
 module.exports.encryptRSA = (req, res, next) => {
@@ -352,7 +391,9 @@ module.exports.decryptRSA = (req, res, next) => {
   console.log(decryptData)
   res.send({data: decryptData})
 }
-
+/**
+ * TRUY VẤN THÔNG TIN
+ */
 module.exports.compareApiSignature = async (req, res, next) => {
   //  kiểm tra agent code (là tên ngan hàng)
   const agent_code_client = req.headers.agent_code
@@ -397,6 +438,72 @@ module.exports.compareApiSignature = async (req, res, next) => {
     })
   }
 }
+/**
+ * NAP TIỀN
+ */
+module.exports.compareApiSignatureTopup = async (req, res, next) => {
+  //  kiểm tra agent code (là tên ngan hàng)
+  const agent_code_client = req.headers.agent_code
+  const check_agent_code = await getBankByAgentCode(agent_code_client)
+  console.log(check_agent_code)
+
+  if(!check_agent_code) {
+    res.status(406).json({
+      result_code: 1,
+      message_code: "INVALID_AGENT_CODE",
+      message_text: 'Trường agent_code không hợp lệ!'
+    })
+  }
+
+  const url = 'api/v1/naptien'
+  const agentSecretKey = check_agent_code.Key_Auth
+  const body = JSON.stringify(req.body)
+  const ts = req.headers.ts
+  // kiểm tra thời gian request
+  const currDate = moment().valueOf()
+  console.log(currDate)
+  if(currDate - ts > 1800000000) {
+    res.status(406).json({
+      result_code: 1,
+      message_code: "REQUEST_TIMOUT",
+      message_text: "Yêu cầu đã quá hạn cho phép!"
+    })
+  }
+
+  // kiễm tra gói tin có chỉnh sửa chưa
+  const clientSig = req.headers.api_signature
+  const joinData = [url, ts, body, agentSecretKey].join("|")
+  const serverSig = sha512(joinData)
+  
+  if(clientSig !== serverSig) {
+    res.status(406).json({
+      result_code: 1,
+      message_code: "INVALID_SIGNATURE",
+      message_text: "Trường api_signature không hợp lệ!"
+    })
+  }
+
+  // kiễm tra verify
+  const algorithm = check_agent_code.Type_Auth
+  console.log(algorithm)
+  if (algorithm === 'RSA') {
+    const verified = verifyRSA(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    if(verified) {
+      next()
+    } else {
+      res.status(406).json({
+        result_code: 1,
+        message_code: "VERIFY FAIL",
+        message_text: "Chữ ký không hợp lệ!"
+      })
+    }
+  } else if (algorithm === 'PGP') {
+    // PGP
+  }
+
+}
+
+
 
 /**
  * kiểm tra ngan hàng đó có liên kết hay chưa
