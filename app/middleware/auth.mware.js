@@ -448,7 +448,7 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
   console.log(check_agent_code)
 
   if(!check_agent_code) {
-    res.status(406).json({
+    return res.status(406).json({
       result_code: 1,
       message_code: "INVALID_AGENT_CODE",
       message_text: 'Trường agent_code không hợp lệ!'
@@ -463,7 +463,7 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
   const currDate = moment().valueOf()
   console.log(currDate)
   if(currDate - ts > 1800000000) {
-    res.status(406).json({
+    return res.status(406).json({
       result_code: 1,
       message_code: "REQUEST_TIMOUT",
       message_text: "Yêu cầu đã quá hạn cho phép!"
@@ -476,7 +476,7 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
   const serverSig = sha512(joinData)
   
   if(clientSig !== serverSig) {
-    res.status(406).json({
+    return res.status(406).json({
       result_code: 1,
       message_code: "INVALID_SIGNATURE",
       message_text: "Trường api_signature không hợp lệ!"
@@ -488,10 +488,11 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
   console.log(algorithm)
   if (algorithm === 'RSA') {
     const verified = verifyRSA(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    console.log("SIGNATURE RSA=", verified)
     if(verified) {
       next()
     } else {
-      res.status(406).json({
+      return res.status(406).json({
         result_code: 1,
         message_code: "VERIFY FAIL",
         message_text: "Chữ ký không hợp lệ!"
@@ -499,8 +500,94 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
     }
   } else if (algorithm === 'PGP') {
     // PGP
+    const verified = this.verifyOpenPGP(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    console.log("SIGNATURE PGP=", verified)
+    if(verified) {
+      next()
+    } else {
+      return res.status(406).json({
+        result_code: 1,
+        message_code: "VERIFY FAIL",
+        message_text: "Chữ ký không hợp lệ!"
+      })
+    }
+  }
+}
+
+/**
+ * trừ TIỀN
+ */
+module.exports.compareApiSignatureWithdrawal = async (req, res, next) => {
+  //  kiểm tra agent code (là tên ngan hàng)
+  const agent_code_client = req.headers.agent_code
+  const check_agent_code = await getBankByAgentCode(agent_code_client)
+  console.log(check_agent_code)
+
+  if(!check_agent_code) {
+    return res.status(406).json({
+      result_code: 1,
+      message_code: "INVALID_AGENT_CODE",
+      message_text: 'Trường agent_code không hợp lệ!'
+    })
   }
 
+  const url = 'api/v1/trutien'
+  const agentSecretKey = check_agent_code.Key_Auth
+  const body = JSON.stringify(req.body)
+  const ts = req.headers.ts
+  // kiểm tra thời gian request
+  const currDate = moment().valueOf()
+  console.log(currDate)
+  if(currDate - ts > 1800000000) {
+    return res.status(406).json({
+      result_code: 1,
+      message_code: "REQUEST_TIMOUT",
+      message_text: "Yêu cầu đã quá hạn cho phép!"
+    })
+  }
+
+  // kiễm tra gói tin có chỉnh sửa chưa
+  const clientSig = req.headers.api_signature
+  const joinData = [url, ts, body, agentSecretKey].join("|")
+  const serverSig = sha512(joinData)
+  
+  if(clientSig !== serverSig) {
+    return res.status(406).json({
+      result_code: 1,
+      message_code: "INVALID_SIGNATURE",
+      message_text: "Trường api_signature không hợp lệ!"
+    })
+  }
+
+  // kiễm tra verify
+  const algorithm = check_agent_code.Type_Auth
+  console.log(algorithm)
+  if (algorithm === 'RSA') {
+    const verified = verifyRSA(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    console.log("SIGNATURE RSA=", verified)
+    if(verified) {
+      next()
+    } else {
+      return res.status(406).json({
+        result_code: 1,
+        message_code: "VERIFY FAIL",
+        message_text: "Chữ ký không hợp lệ!"
+      })
+    }
+  } else if (algorithm === 'PGP') {
+    // PGP
+    const verified = this.verifyOpenPGP(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    console.log("SIGNATURE PGP=", verified)
+    if(verified) {
+      next()
+    } else {
+      return res.status(406).json({
+        result_code: 1,
+        message_code: "VERIFY FAIL",
+        message_text: "Chữ ký không hợp lệ!"
+      })
+    }
+  }
 }
 
 

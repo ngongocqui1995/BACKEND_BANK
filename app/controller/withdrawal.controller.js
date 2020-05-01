@@ -3,7 +3,7 @@ const { queryDB } = require('../../config/dev/db_mysql')
 const { getRowsPagination, isEmpty, getStateMessage } = require('../validator/validator')
 const moment = require('moment')
 
-class TopupController extends BaseController {
+class WithdrawalController extends BaseController {
   constructor() {
     super()
   }
@@ -11,10 +11,10 @@ class TopupController extends BaseController {
   async create(req, res) {
     let { SoTKGui, SoTKNhan, SoTien, NguoiTraPhi, MoTa, key_message, key_signature } = req.body
     let {agent_code} = req.headers
-    console.log(SoTKGui, SoTKNhan, SoTien, NguoiTraPhi, MoTa)
+    console.log(key_signature)
     // chuyển tiền nội bộ
     let sql_1 = "CALL proc_GiaoDichDoiNo_LienKet(?,?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [SoTKGui, agent_code, SoTKNhan, 'BBC', SoTien, 'Gui', MoTa, NguoiTraPhi, '', key_signature])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [SoTKGui, 'BBC', SoTKNhan, agent_code, SoTien, 'Gui', MoTa, NguoiTraPhi, '', key_signature])
 
     console.log(result_1[1][0])
 
@@ -55,4 +55,4 @@ class TopupController extends BaseController {
   }
 }
 
-module.exports = TopupController
+module.exports = WithdrawalController
