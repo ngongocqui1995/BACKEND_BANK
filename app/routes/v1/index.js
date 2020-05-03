@@ -18,5 +18,6 @@ router.use('/reciever', require(`${ROUTE_V1_PATH}/reciever.route`))
 router.use('/bank', require(`${ROUTE_V1_PATH}/bank.route`))
 router.use('/bbc', require(`${ROUTE_V1_PATH}/service.route`))
 router.use('/naptien', require(`${ROUTE_V1_PATH}/topup.route`))
+router.use('/trutien', require(`${ROUTE_V1_PATH}/withdrawal.route`))
 
 module.exports = router
