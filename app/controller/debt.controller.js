@@ -19,9 +19,10 @@ class DebtController extends BaseController {
       message: err_1
     })
 
+    console.log(result_1)
     const message1 = result_1[1][0] && result_1[1][0].message || ''
     const split1 = message1.split(':')
-    console.log(split1)
+
     if (split1[0] != 0) {
       return res.status(422).send({
         success: false,

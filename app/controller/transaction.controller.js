@@ -188,7 +188,7 @@ class TransactionController extends BaseController {
       service: 'Gmail',
       auth: {
         user: 'daochichteam@gmail.com',
-        pass: 'maianhtuan'
+        pass: 'anhsang1230'
       }
     });
 
