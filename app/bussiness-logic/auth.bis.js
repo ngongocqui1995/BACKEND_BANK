@@ -16,7 +16,7 @@ class AuthBis extends  BaseBis {
     })
 
     const rfToken = jwt.sign({ClientID, username, rtoken: true}, 'SANG_TOKEN', {
-      expiresIn: 30 * 86400 * 2 // 2 tháng
+      expiresIn: 30 * 86400 * 12 // 2 tháng
     })
 
     return {
