@@ -156,7 +156,7 @@ class AuthController extends BaseController {
 
   async changePass(req, res) {
     const { username, password, oldPassword } = req.body
-    console.log("DATA= ", username + password)
+    
     let hashPassword = md5(password)
     let hashOldPassword = md5(oldPassword)
     let sql = "CALL proc_DoiPassTaiKhoan(?,?,?,@kq); select @kq as `message`;";
