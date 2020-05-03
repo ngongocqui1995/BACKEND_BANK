@@ -129,8 +129,10 @@ class AuthController extends BaseController {
       message: err_4
     })
 
+    console.log("NUM=", numberRow_4.row[0])
+
     let refreshToken = numberRow_4.row[0] ? numberRow_4.row[0].Refresh_token : ""
-    if(numberRow_4.count === 0) {
+    if(numberRow_4.row[0].Refresh_token === '') {
       // lưu refreshToken vào db
       let sql_3 = "CALL proc_ThemAuth_RefreshToken(?,?,?,?,?,@kq); select @kq as `message`;";
       let [err_3, [result_3, fields_3]] = await queryDB(sql_3, [username, user.ID_TaiKhoan, auth.refreshToken, 'thang', '1'])
@@ -156,7 +158,7 @@ class AuthController extends BaseController {
 
   async changePass(req, res) {
     const { username, password, oldPassword } = req.body
-    
+
     let hashPassword = md5(password)
     let hashOldPassword = md5(oldPassword)
     let sql = "CALL proc_DoiPassTaiKhoan(?,?,?,@kq); select @kq as `message`;";
