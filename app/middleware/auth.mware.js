@@ -306,11 +306,10 @@ module.exports.signOpenPGP = async (req, res, next) => {
   console.log(cleartext); // '-----BEGIN PGP SIGNED MESSAGE ... END PGP SIGNATURE-----'
 }
 
-module.exports.verifyOpenPGP = async (req, res, next) => {
-  const { payload } = req.body
+module.exports.verifyOpenPGP = async (message, signature, pub_key) => {
   const { signatures } = await openpgp.verify({
-    message: await openpgp.cleartext.readArmored(payload),           // parse armored message
-    publicKeys: (await openpgp.key.readArmored(public_key)).keys // for verification
+    message: await openpgp.cleartext.readArmored(message),           // parse armored message
+    publicKeys: (await openpgp.key.readArmored(pub_key)).keys // for verification
   });
   const { valid } = verified.signatures[0];
   if (valid) {
