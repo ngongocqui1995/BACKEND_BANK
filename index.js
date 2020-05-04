@@ -60,19 +60,6 @@ server.on('error', onError)
 secureServer.on('listening', onListening)
 secureServer.on('error', onError)
 
-// // Connect to DB
-// mongoose.Promise = global.Promise
-// mongoose.connect(dbConfig.url, dbConfig.options)
-//   .then(() => {
-//     console.log('db connected: ', dbConfig)
-//     server.listen(port)
-//     secureServer.listen(sslPort)
-//   })
-//   .catch(error => {
-//     console.log('connect db error: ', error)
-//   })
-// mongoose.set('debug', true)
-
 server.listen(process.env.PORT || port)
 checkConnectDB()
 

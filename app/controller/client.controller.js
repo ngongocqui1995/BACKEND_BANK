@@ -82,10 +82,23 @@ class ClientController extends BaseController {
 
     console.log("-Đăng ký user thành công!!!")
 
+    let sql_3 = "CALL proc_ThemAuth_RefreshToken(?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_3, [result_3, fields_3]] = await queryDB(sql_3, [username, '', '', 'thang', 12])
+    const message3 = result_3[1][0] && result_3[1][0].message || ''
+    const split3 = message3.split(':')
+    console.log(split3)
+    if (split3[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split3[0],
+        message: split3[1]
+      })
+    }
+
     res.send({
       success: true,
       result_code: 0,
-      message: split[0]
+      message: "Đăng ký thành công!"
     })
   }
 

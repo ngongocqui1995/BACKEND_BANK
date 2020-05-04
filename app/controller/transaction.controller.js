@@ -11,6 +11,7 @@ class TransactionController extends BaseController {
 
   async getAll(req, res) {
     const {bankA, bankB} = req.query
+    console.log(req.query)
     let bankNameA = ''
     if(!bankA) {
       bankNameA = bankA
@@ -19,8 +20,10 @@ class TransactionController extends BaseController {
     if(!bankB) {
       bankNameB = bankB
     }
+    console.log("BANK A=", bankA)
+    console.log("BANK B=", bankB)
     let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankNameA, bankNameB])
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankA, bankB])
 
     if (err_1) return res.status(422).send({
       success: false,
