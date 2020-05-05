@@ -3,6 +3,7 @@ const { queryDB } = require('../../config/dev/db_mysql')
 const { getRowsPagination, isEmpty, getStateMessage } = require('../validator/validator')
 const mongoose = require('mongoose')
 const nodemailer = require('nodemailer');
+const moment =  require('moment')
 
 class TransactionController extends BaseController {
   constructor() {
@@ -157,9 +158,12 @@ class TransactionController extends BaseController {
  
   async sendOTP(req, res){
     const {username} = req.params
+    const data = req.body
+
     const code = this.randomRange(100000, 999999) // random code
-    const sendMail = this.sendMail(username, code)
+    const sendMail = this.sendMail(username, code, data)
     const OTP = this.createOTP(username, code) // save code in database
+
     Promise.all([sendMail, OTP]).then(values => { 
       res.send({
         success: true
@@ -186,7 +190,7 @@ class TransactionController extends BaseController {
     return true
   }
 
-  sendMail(email, code) {
+  sendMail(email, code, formData) {
     const transporter = nodemailer.createTransport({ // config mail server
       service: 'Gmail',
       auth: {
@@ -195,11 +199,17 @@ class TransactionController extends BaseController {
       }
     });
 
+    const time = moment().format('HH:mm:ss DD/MM/YYYY')
+
     const mainOptions = { // thiết lập đối tượng, nội dung gửi mail
       from: 'Thanh Batmon',
       to: email,
-      subject: 'OTP Ngân hàng',
-      text: 'Mã OTP để xác nhận là: ' + code,
+      subject: 'Ngân hàng BBC',
+      text: `Thời gian: ${time}
+      Tài khoản thanh toán: ${formData.accountNumberA} của bạn đã chuyển khoản cho tài khoản ${formData.accountNumberB} với số tiền ${formData.amount} vnđ, người trả phí là ${formData.payer === 'A' ? 'mình.' : 'bên nhận.'}
+      Mã xác nhận là: ${code}
+      Mã code sẽ tồn tại trong 5 phút.
+      `,
     }
 
     transporter.sendMail(mainOptions, function (err, info) {

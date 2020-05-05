@@ -15,11 +15,12 @@ class AuthController extends BaseController {
   }
 
   async getNewToken(req, res) {
-    const refreshtoken = req.body
+    const refreshtoken = req.header["x-refresh-token"]
+    const username = req.header["username"]
     // kiểm tra refreshtoken có tồn tại ko
     let sql_1 = "CALL proc_viewAuth_RefreshToken(?,?,?);";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, 
-      [refreshtoken.payload.username, refreshtoken.payload.ClientID, refreshtoken.main])
+      ['', '', refreshtoken])
       
     let numberRow = { count: 0 }
     if (result_1.length > 0) numberRow = result_1[0] ? { count: result_1[0].length } : { count: 0 }
@@ -37,8 +38,8 @@ class AuthController extends BaseController {
     console.log("-Refreshtoken tồn tại và không hết hạn!!!")
     // lấy accesstoken
     const [err_2, auth] = await this.to(this.authBis.authUser({
-      Username: refreshtoken.payload.username,
-      ID_TaiKhoan: refreshtoken.payload.ClientID}))
+      Username: username,
+      ID_TaiKhoan: ''}))
     if(err_2) return res.status(422).send({
       success: false,
       message: err_2
@@ -244,8 +245,11 @@ class AuthController extends BaseController {
     const mainOptions = { // thiết lập đối tượng, nội dung gửi mail
       from: 'Thanh Batmon',
       to: username,
-      subject: 'OTP Ngân hàng',
-      text: 'Mã OTP để xác nhận là: ' + code,
+      subject: 'Ngân hàng BBC',
+      text: `Bạn đã yêu cầu reset mật khẩu, 
+        Mã xác thực là: ${code}
+        Vui lòng nhập mã này và hoàn tất quá trình reset mật khẩu!
+      `,
     }
     const sendMail = this.sendMail(code, mainOptions)
     const OTP = this.createOTP(username, code) // save code in database
