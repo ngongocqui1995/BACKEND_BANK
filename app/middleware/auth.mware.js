@@ -400,7 +400,7 @@ module.exports.compareApiSignature = async (req, res, next) => {
   console.log(check_agent_code)
 
   if(!check_agent_code) {
-    res.status(406).json({
+    return res.status(406).json({
       result_code: 1,
       message_code: "INVALID_AGENT_CODE",
       message_text: 'Trường agent_code không hợp lệ!'
@@ -410,12 +410,12 @@ module.exports.compareApiSignature = async (req, res, next) => {
   const url = 'api/v1/bbc/truyvanthongtin'
   const agentSecretKey = check_agent_code.Key_Auth
   const body = JSON.stringify(req.body)
-  const ts = req.headers.ts
+  const ts = +req.headers.ts
   // kiểm tra thời gian request
   const currDate = moment().valueOf()
-
-  if(currDate - ts > 1800000) {
-    res.status(406).json({
+  const time = currDate - ts
+  if(time > 180000) {
+    return res.status(406).json({
       result_code: 1,
       message_code: "REQUEST_TIMOUT",
       message_text: "Yêu cầu đã quá hạn cho phép!"
@@ -430,7 +430,7 @@ module.exports.compareApiSignature = async (req, res, next) => {
   if(clientSig === serverSig) {
     next()
   } else {
-    res.status(406).json({
+    return res.status(406).json({
       result_code: 1,
       message_code: "INVALID_SIGNATURE",
       message_text: "Trường api_signature không hợp lệ!"
@@ -457,11 +457,11 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
   const url = 'api/v1/naptien'
   const agentSecretKey = check_agent_code.Key_Auth
   const body = JSON.stringify(req.body)
-  const ts = req.headers.ts
+  const ts = +req.headers.ts
   // kiểm tra thời gian request
   const currDate = moment().valueOf()
   console.log(currDate)
-  if(currDate - ts > 1800000000) {
+  if(currDate - ts > 180000) {
     return res.status(406).json({
       result_code: 1,
       message_code: "REQUEST_TIMOUT",
@@ -533,11 +533,11 @@ module.exports.compareApiSignatureWithdrawal = async (req, res, next) => {
   const url = 'api/v1/trutien'
   const agentSecretKey = check_agent_code.Key_Auth
   const body = JSON.stringify(req.body)
-  const ts = req.headers.ts
+  const ts = +req.headers.ts
   // kiểm tra thời gian request
   const currDate = moment().valueOf()
   console.log(currDate)
-  if(currDate - ts > 1800000000) {
+  if(currDate - ts > 180000) {
     return res.status(406).json({
       result_code: 1,
       message_code: "REQUEST_TIMOUT",

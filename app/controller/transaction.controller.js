@@ -209,6 +209,7 @@ class TransactionController extends BaseController {
       Tài khoản thanh toán: ${formData.accountNumberA} của bạn đã chuyển khoản cho tài khoản ${formData.accountNumberB} với số tiền ${formData.amount} vnđ, người trả phí là ${formData.payer === 'A' ? 'mình.' : 'bên nhận.'}
       Mã xác nhận là: ${code}
       Mã code sẽ tồn tại trong 5 phút.
+      Chân thành cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
       `,
     }
 
