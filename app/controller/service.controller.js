@@ -37,7 +37,7 @@ class ServiceController extends BaseController {
     res.send({
       TenKH: result_1[0][0].HoTen,
       SoDienThoai: result_1[0][0].DienThoai,
-      SoDu: result_1[0][0].SoDu,
+      // SoDu: result_1[0][0].SoDu,
       TrangThaiTK: result_1[0][0].TinhTrang,
       result_code: 600,
       result_message: "Truy xuất thông tin thành công!",

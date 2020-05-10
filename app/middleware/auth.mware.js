@@ -599,10 +599,7 @@ const getBankByAgentCode = async (agent_code) => {
   let sql_1 = "CALL proc_viewKeyNH(?);";
   let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [agent_code])
 
-  if (err_1) return res.status(422).send({
-    success: false,
-    message: err_1
-  })
+  if (err_1) return null
 
   return result_1[0][0]
 }

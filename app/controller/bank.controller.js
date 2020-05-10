@@ -9,7 +9,7 @@ class BankController extends BaseController {
   }
 
   async getBankList(req, res) {
-    const {username} = req.params
+    const { username } = req.params
     // lấy thông tin user
     let sql_1 = "CALL proc_viewNH(?,?,?,?,?,@kq); select @kq as `message`;";
     let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', 1, 100, 'ID_NganHangLienKet', 'giam'])
@@ -29,7 +29,7 @@ class BankController extends BaseController {
     //     message: split[1]
     //   })
     // }
-   
+
 
     res.send({
       data: result_1[0],
@@ -67,6 +67,23 @@ class BankController extends BaseController {
       result_code: 0,
       message: "Tạo biệt danh thành công!!!"
     })
+  }
+
+  async getBankByAgentCode(req, res) {
+    const { bankName } = req.params
+    let sql_1 = "CALL proc_viewKeyNH(?);";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [bankName])
+
+    if (err_1) return res.status(422).send({
+      result_code: 1,
+      message: err_1
+    })
+
+    return res.send({
+      result_code: 0,
+      data: result_1[0][0]
+    })
+
   }
 
 }

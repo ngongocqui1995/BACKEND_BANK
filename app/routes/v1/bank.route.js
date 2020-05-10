@@ -5,6 +5,7 @@ const bank = new BankController()
 const {verifyAccessToken} = require('../../middleware/auth.mware')
 
 router.get('/', verifyAccessToken, bank.getBankList)
+router.get('/:bankName', verifyAccessToken, bank.getBankByAgentCode)
 router.post('/', verifyAccessToken, bank.create)
 
 // other routes

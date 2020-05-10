@@ -243,12 +243,14 @@ class AuthController extends BaseController {
     const code = this.randomRange(100000, 999999) // random code
 
     const mainOptions = { // thiết lập đối tượng, nội dung gửi mail
-      from: 'Thanh Batmon',
+      from: 'BBC BANK',
       to: username,
       subject: 'Ngân hàng BBC',
-      text: `Bạn đã yêu cầu reset mật khẩu, 
-        Mã xác thực là: ${code}
-        Vui lòng nhập mã này và hoàn tất quá trình reset mật khẩu!
+      text: `Ngân hàng BBC chào bạn,
+      Bạn đã yêu cầu reset mật khẩu
+      Mã xác thực là: ${code}
+      Vui lòng nhập mã này và hoàn tất quá trình reset mật khẩu!
+      Cảm ơn bạn đã tin tưởng sử dụng dịch vụ của chúng tôi.
       `,
     }
     const sendMail = this.sendMail(code, mainOptions)

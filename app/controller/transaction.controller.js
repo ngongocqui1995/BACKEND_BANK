@@ -58,7 +58,7 @@ class TransactionController extends BaseController {
   }
 
   async internalTrans(req, res) {
-    let { accountNumberA, accountNumberB, amount, note, payer, OTP_CODE, username, transType, ID_TraNo } = req.body
+    let { accountNumberA, accountNumberB, amount, note, payer, OTP_CODE, username, usernameB, transType, ID_TraNo } = req.body
     const otp = await this.getOTP(username)
 
     if(otp.length > 6) {
@@ -97,6 +97,9 @@ class TransactionController extends BaseController {
     }
 
     console.log("-Chuyển tiền nội bộ thành công!!!")
+    const io = req.app.get('socketio');
+
+    io.emit('INTERNAL_TRANS', {usernameB, accountNumberA, accountNumberB, amount, note})
 
     res.send({
       success: true,
@@ -205,10 +208,11 @@ class TransactionController extends BaseController {
       from: 'Thanh Batmon',
       to: email,
       subject: 'Ngân hàng BBC',
-      text: `Thời gian: ${time}
+      text: `Ngân hàng BBC thông báo,
       Tài khoản thanh toán: ${formData.accountNumberA} của bạn đã chuyển khoản cho tài khoản ${formData.accountNumberB} với số tiền ${formData.amount} vnđ, người trả phí là ${formData.payer === 'A' ? 'mình.' : 'bên nhận.'}
+      Thời gian: ${time}
       Mã xác nhận là: ${code}
-      Mã code sẽ tồn tại trong 5 phút.
+      Mã code sẽ tồn tại trong 5 phút
       Chân thành cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
       `,
     }
