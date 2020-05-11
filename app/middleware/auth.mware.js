@@ -407,7 +407,7 @@ module.exports.compareApiSignature = async (req, res, next) => {
     })
   }
 
-  const url = 'api/v1/bbc/truyvanthongtin'
+  const url = 'api/v1/truyvanthongtin'
   const agentSecretKey = check_agent_code.Key_Auth
   const body = JSON.stringify(req.body)
   const ts = +req.headers.ts

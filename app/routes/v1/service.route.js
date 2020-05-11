@@ -4,7 +4,7 @@ const ServiceController = require(`${global.APP_CONTROLLER_PATH}/service.control
 const service = new ServiceController()
 const {generateOpenPGP, encryptOpenPGP, decryptOpenPGP, compareApiSignature, signRSA, verifyRSA, decryptRSA, encryptRSA} = require('../../middleware/auth.mware')
 
-router.post('/truyvanthongtin', compareApiSignature, service.getInfo)
+router.post('/', compareApiSignature, service.getInfo)
 
 // router.post('/wallet/topup', verifyRSA, service.topup)
 
