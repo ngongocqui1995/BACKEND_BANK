@@ -20,4 +20,6 @@ router.use('/truyvanthongtin', require(`${ROUTE_V1_PATH}/service.route`))
 router.use('/naptien', require(`${ROUTE_V1_PATH}/topup.route`))
 router.use('/trutien', require(`${ROUTE_V1_PATH}/withdrawal.route`))
 
+router.use('/service', require(`${ROUTE_V1_PATH}/core.route`))
+
 module.exports = router
