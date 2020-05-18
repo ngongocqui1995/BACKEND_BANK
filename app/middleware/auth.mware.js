@@ -297,13 +297,16 @@ module.exports.generateOpenPGP = async (req, res, next) => {
   })
 }
 
-module.exports.signOpenPGP = async (req, res, next) => {
-  const { payload } = req.body
+module.exports.signOpenPGP = async (payload) => {
+  const { keys: [privateKey] } = await openpgp.key.readArmored(private_key);
+    await privateKey.decrypt(passphrase);
+
   const { data: cleartext } = await openpgp.sign({
     message: openpgp.cleartext.fromText(JSON.stringify(payload)), // CleartextMessage or Message object
-    privateKeys: [private_key]                             // for signing
+    privateKeys: [privateKey]                       // for signing
   });
-  console.log(cleartext); // '-----BEGIN PGP SIGNED MESSAGE ... END PGP SIGNATURE-----'
+  // console.log(cleartext); // '-----BEGIN PGP SIGNED MESSAGE ... END PGP SIGNATURE-----'
+  return cleartext
 }
 
 module.exports.verifyOpenPGP = async (message, signature, pub_key) => {

@@ -7,6 +7,7 @@ const {generateOpenPGP, encryptOpenPGP, decryptOpenPGP,
   verifyAccessToken} = require('../../middleware/auth.mware')
 
 router.post('/', verifyAccessToken, core.getInfo)
+router.post('/cashin', verifyAccessToken, core.cashin)
 
 // other routes
 module.exports = router
