@@ -124,7 +124,7 @@ class CoreController extends BaseController {
         if (json.result_code === 0) {
           console.log("600")
           let sql_1 = "CALL proc_GiaoDichDoiNo_LienKet(?,?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-          let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [bodyData.SoTKGui, bankNameB, bodyData.SoTKNhan, 'BBC',
+          let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [bodyData.SoTKGui, 'BBC', bodyData.SoTKNhan, bankNameB,
           bodyData.SoTien, 'Gui', bodyData.MoTa, bodyData.NguoiTraPhi, '', bodyData.key_signature])
 
           if (err_1) return res.status(422).send({
