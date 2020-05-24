@@ -63,20 +63,11 @@ class TransactionController extends BaseController {
   }
 
   async getAll(req, res) {
-    const {bankA, bankB} = req.query
+    const {bankA, bankB, startDay, endDay} = req.query
     console.log(req.query)
-    let bankNameA = ''
-    if(!bankA) {
-      bankNameA = bankA
-    }
-    let bankNameB = ''
-    if(!bankB) {
-      bankNameB = bankB
-    }
-    console.log("BANK A=", bankA)
-    console.log("BANK B=", bankB)
-    let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
-    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankA, bankB])
+
+    let sql_1 = "CALL proc_viewGiaoDich(?,?,?,?,?,?,?,?,?,?,?,@kq); select @kq as `message`;";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, ['', '', 1, 1000, 'ThoiGian', 'giam', bankA, bankB, startDay, endDay, ''])
 
     if (err_1) return res.status(422).send({
       success: false,

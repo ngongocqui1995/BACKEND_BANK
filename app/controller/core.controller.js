@@ -104,15 +104,15 @@ class CoreController extends BaseController {
 
     bodyData.key_signature = key_signature
     const timestamp = moment().valueOf()
-    const joinData = ['api/v1/naptien', timestamp, JSON.stringify(bodyData), agentSecretKey].join("|")
+    const joinData = ['api/v1/naptien', timestamp, JSON.stringify(bodyData), '1212'].join("|")
     const signature = sha512(joinData)
-
+    console.log(connectorUrl)
     fetch(`${connectorUrl}/naptien`, {
       method: 'post',
       body: JSON.stringify(bodyData),
       headers: {
         'Content-Type': 'application/json',
-        agent_code: bankNameB,
+        agent_code: 'BBC',
         api_signature: signature,
         ts: timestamp
       },

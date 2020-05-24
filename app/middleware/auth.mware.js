@@ -253,7 +253,7 @@ module.exports.verifyAccessToken = (req, res, next) => {
 
   if (token) {
     jwt.verify(token, 'SANG_TOKEN', function (err, payload) {
-      if (err) throw createError(403, err);
+      if (err) throw createError(401, err);
 
       next()
     })
@@ -270,7 +270,7 @@ module.exports.verifyRefreshToken = (req, res, next) => {
   }
 
   jwt.verify(refreshToken, 'SANG_TOKEN', function (err, payload) {
-    if (err) throw createError(403, err);
+    if (err) throw createError(401, err);
 
     req.body = {
       main: refreshToken,
@@ -309,16 +309,18 @@ module.exports.signOpenPGP = async (payload) => {
   return cleartext
 }
 
-module.exports.verifyOpenPGP = async (message, signature, pub_key) => {
-  const { signatures } = await openpgp.verify({
+const verifyOpenPGP = async (message, signature, pub_key) => {
+  const verified = await openpgp.verify({
     message: await openpgp.cleartext.readArmored(message),           // parse armored message
     publicKeys: (await openpgp.key.readArmored(pub_key)).keys // for verification
   });
   const { valid } = verified.signatures[0];
   if (valid) {
-    console.log('signed by key id ' + verified.signatures[0].keyid.toHex());
+      console.log('signed by key id ' + verified.signatures[0].keyid.toHex());
+      return true
   } else {
-    throw new Error('signature could not be verified');
+      throw new Error('signature could not be verified');
+      return false
   }
 }
 
@@ -502,7 +504,7 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
     }
   } else if (algorithm === 'PGP') {
     // PGP
-    const verified = this.verifyOpenPGP(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    const verified = verifyOpenPGP(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
     console.log("SIGNATURE PGP=", verified)
     if(verified) {
       next()

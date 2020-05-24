@@ -99,6 +99,38 @@ class RecieverController extends BaseController {
     })
   }
 
+  async delete(req, res) {
+    const {id} = req.params
+    const {ID_TaiKhoan_TTTK_B, TenNganHang} = req.body
+
+    let sql_1 = "CALL proc_XoaBietDanh(?,?,?, @kq); select @kq as `message`";
+    let [err_1, [result_1, fields_1]] = await queryDB(sql_1, [id, ID_TaiKhoan_TTTK_B, TenNganHang])
+
+    if (err_1) return res.status(422).send({
+      success: false,
+      message: err_1
+    })
+
+    const message = result_1[1][0] && result_1[1][0].message || ''
+    const split = message.split(':')
+    console.log(split)
+    
+    if (split[0] != 0) {
+      return res.status(422).send({
+        success: false,
+        result_code: +split[0],
+        message: split[1]
+      })
+    }
+
+    res.send({
+      success: true,
+      result_code: 0,
+      message: split[1]
+    })
+
+  }
+
 }
 
 module.exports = RecieverController
