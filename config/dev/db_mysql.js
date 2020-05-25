@@ -1,11 +1,11 @@
 const mysql = require('mysql2');
 
 let config = {
-    host: "johnny.heliohost.org",
+    host: "atamatr-23084.portmap.io",
     user: "thongbao",
     password: "8239198tamquysang",
     database: "thongbao_test",
-    port: 3306,
+    port: 23084,
     multipleStatements: true,
     connectionLimit: 1000,
     waitForConnections: true,
