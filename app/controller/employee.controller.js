@@ -81,7 +81,6 @@ class EmployeeController extends BaseController {
     const message = result_1[1][0] && result_1[1][0].message || ''
     const split = message.split(':')
 
-    console.log(split)
 
     if (split[0] != 0) {
       return res.status(422).send({
