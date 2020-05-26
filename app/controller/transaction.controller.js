@@ -266,7 +266,6 @@ class TransactionController extends BaseController {
       subject: 'Ngân hàng BBC',
       text: `Ngân hàng BBC thông báo,
       Tài khoản thanh toán: ${formData.accountNumberA} của bạn đã chuyển khoản cho tài khoản ${formData.accountNumberB} với số tiền ${formData.amount} vnđ, người trả phí là ${formData.payer === 'A' ? 'mình.' : 'bên nhận.'}
-      Thời gian: ${time}
       Mã xác nhận là: ${code}
       Mã code sẽ tồn tại trong 5 phút
       Chân thành cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
@@ -276,6 +275,10 @@ class TransactionController extends BaseController {
     transporter.sendMail(mainOptions, function (err, info) {
       if (err) {
         console.log(err);
+        return res.status(422).send({
+          result_code: 1,
+          message: 'Không thể gửi OTP!'
+        })
       } else {
         console.log('Message sent: ' + info.response);
       }
