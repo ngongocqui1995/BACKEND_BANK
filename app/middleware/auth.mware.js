@@ -491,7 +491,7 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
   const algorithm = check_agent_code.Type_Auth
   console.log(algorithm)
   if (algorithm === 'RSA') {
-    const verified = verifyRSA(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    const verified = await verifyRSA(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
     console.log("SIGNATURE RSA=", verified)
     if(verified) {
       next()
@@ -504,7 +504,7 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
     }
   } else if (algorithm === 'PGP') {
     // PGP
-    const verified = verifyOpenPGP(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    const verified = await verifyOpenPGP(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
     console.log("SIGNATURE PGP=", verified)
     if(verified) {
       next()
