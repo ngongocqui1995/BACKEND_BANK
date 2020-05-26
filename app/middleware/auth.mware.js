@@ -309,7 +309,7 @@ module.exports.signOpenPGP = async (payload) => {
   return cleartext
 }
 
-const verifyOpenPGP = async (message, signature, pub_key) => {
+const verifyOpenPGP = async (message, pub_key) => {
   const verified = await openpgp.verify({
     message: await openpgp.cleartext.readArmored(message),           // parse armored message
     publicKeys: (await openpgp.key.readArmored(pub_key)).keys // for verification
@@ -504,7 +504,7 @@ module.exports.compareApiSignatureTopup = async (req, res, next) => {
     }
   } else if (algorithm === 'PGP') {
     // PGP
-    const verified = await verifyOpenPGP(req.body.key_message, req.body.key_signature, check_agent_code.Pub_Key)
+    const verified = await verifyOpenPGP(req.body.key_signature, check_agent_code.Pub_Key)
     console.log("SIGNATURE PGP=", verified)
     if(verified) {
       next()
