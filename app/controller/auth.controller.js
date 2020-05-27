@@ -58,13 +58,6 @@ class AuthController extends BaseController {
     let username = req.body.username
     let password = req.body.password
 
-    if (!isEmail(username) || isEmpty(password)) {
-      return res.status(422).send({
-        success: false,
-        message: "-Đăng nhập thất bại !!!"
-      })
-    }
-
     // kiểm tra đăng nhập thành công hay thất bại
     let hashPassword = md5(password)
     let sql = "CALL proc_DangNhap(?,?,@kq); select @kq as `message`;";
