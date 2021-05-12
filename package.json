@@ -27,7 +27,7 @@
     "mysql2": "^2.1.0",
     "node-fetch": "^2.6.0",
     "node-rsa": "^1.0.8",
-    "nodemailer": "^6.4.6",
+    "nodemailer": "^6.4.16",
     "nodemon": "^2.0.2",
     "openpgp": "^4.10.1",
     "parse-error": "^0.2.0",
